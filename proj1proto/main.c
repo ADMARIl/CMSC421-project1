@@ -8,9 +8,29 @@
  */
 
 #include <stdio.h>
+#include <time.h>
 #include "skipList.h"
 
+unsigned int SKIPLIST_SIZE = 10;
+
 int main() {
-    printf("Hello, World!\n");
+    // generate probability
+    seed_random(time(NULL));
+    // test vals
+    int vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 1, 56, 66};
+
+    // start skipList
+    // struct skipList_head skipList;
+    skipList_initialize(SKIPLIST_SIZE, 16383);
+
+    // add to skipList
+    printf("-------- Inserting --------\n");
+    for (unsigned long i  = 0; i < sizeof(vals); i++) {
+        skipList_add(vals[i]);
+        printf("Adding ");
+        printf("%d", vals[i]);
+    }
+
+    printf("-------- Search for each value --------\n");
     return 0;
 }
