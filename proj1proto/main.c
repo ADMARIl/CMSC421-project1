@@ -31,6 +31,22 @@ int main() {
         printf("%d", vals[i]);
     }
 
+    skipList_print();
+
     printf("-------- Search for each value --------\n");
+    for (unsigned long i  = 0; i < sizeof(vals); i++) {
+        if(skipList_search(vals[i] != -1)) {
+            printf("Found ");
+            printf("%d", vals[i]);
+        }
+    }
+
+    printf("-------- Deleting --------\n");
+    for (unsigned long i  = 0; i < sizeof(vals); i++) {
+        if(skipList_del(vals[i] != -1)) {
+            printf("Deleted ");
+            printf("%d", vals[i]);
+        }
+    }
     return 0;
 }
