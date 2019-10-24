@@ -11,11 +11,12 @@
 #include <time.h>
 #include "skipList.h"
 
-unsigned int SKIPLIST_SIZE = 10;
+unsigned int SKIPLIST_SIZE = 5;
 
 int main() {
     // generate probability
     //seed_random(time(NULL));
+    seed_random(1000000);
     // test vals
     int vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 1, 56, 66};
 
@@ -34,20 +35,24 @@ int main() {
 
     skipList_print();
 
-   /* printf("-------- Search for each value --------\n");
-    for (unsigned long i  = 0; i < sizeof(vals); i++) {
-        if(skipList_search(vals[i] != -1)) {
+    printf("-------- Search for each value --------\n");
+    for (unsigned long i  = 0; i < 12; i++) {
+        if(skipList_search(vals[i]) == 0) {
             printf("Found ");
             printf("%d", vals[i]);
+            printf("\n");
         }
     }
 
-    printf("-------- Deleting --------\n");
+    /*printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < sizeof(vals); i++) {
-        if(skipList_del(vals[i] != -1)) {
+        if(skipList_del(vals[i]) == 0) {
             printf("Deleted ");
             printf("%d", vals[i]);
+            printf("\n");
         }
     }*/
+
+    skipList_print();
     return 0;
 }
