@@ -15,7 +15,7 @@ unsigned int SKIPLIST_SIZE = 10;
 
 int main() {
     // generate probability
-    seed_random(time(NULL));
+    //seed_random(time(NULL));
     // test vals
     int vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 1, 56, 66};
 
@@ -25,15 +25,16 @@ int main() {
 
     // add to skipList
     printf("-------- Inserting --------\n");
-    for (unsigned long i  = 0; i < sizeof(vals); i++) {
+    for (unsigned long i  = 0; i < 12; i++) {
+        //printf("Adding ");
         skipList_add(vals[i]);
-        printf("Adding ");
-        printf("%d", vals[i]);
+        //printf("%ld", );
+
     }
 
     skipList_print();
 
-    printf("-------- Search for each value --------\n");
+   /* printf("-------- Search for each value --------\n");
     for (unsigned long i  = 0; i < sizeof(vals); i++) {
         if(skipList_search(vals[i] != -1)) {
             printf("Found ");
@@ -47,6 +48,6 @@ int main() {
             printf("Deleted ");
             printf("%d", vals[i]);
         }
-    }
+    }*/
     return 0;
 }

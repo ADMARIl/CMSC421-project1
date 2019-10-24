@@ -27,7 +27,7 @@
 #include <asm/ppc_asm.h>
 #include <asm/ppc-opcode.h>
 
-#define MAX_SIZE	32768
+#define MAX_SL_SIZE	32768
 
 	.text
 
@@ -125,9 +125,9 @@ FUNC_START(CRC_FUNCTION_NAME)
 
 	rldicr	r6,r5,0,56
 
-	/* Checksum in blocks of MAX_SIZE */
-1:	lis	r7,MAX_SIZE@h
-	ori	r7,r7,MAX_SIZE@l
+	/* Checksum in blocks of MAX_SL_SIZE */
+1:	lis	r7,MAX_SL_SIZE@h
+	ori	r7,r7,MAX_SL_SIZE@l
 	mr	r9,r7
 	cmpd	r6,r7
 	bgt	2f
