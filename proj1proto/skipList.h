@@ -159,10 +159,6 @@ static long skipList_add(int key) {
     newNode->mBox->num = key;
     newNode->towerHeight = newHeight;
 
-    if (newHeight-1 > SL_SIZE) {
-        SL_SIZE = newHeight-1;
-    }
-
     printf("New height is ");
     printf("%d\n", newHeight);
 
@@ -172,8 +168,14 @@ static long skipList_add(int key) {
         newNode->next[i] = nodes[i]->next[i];
         nodes[i]->next[i] = newNode;
     }
+
+    if (newHeight-1 > SL_SIZE) {
+        SL_SIZE = newHeight-1;
+    }
+
     free(nodes);
 
+    return 0;
     //free(newNode);
 }
 
@@ -223,12 +225,16 @@ long skipList_del(int target) {
             }
         }
 
+        //struct skipList_node *freeNode = currNode;
         currNode = currNode->next[currLevel];
         if (currNode->id == target) {
             for (int i = 0; i < currNode->towerHeight; i++)
                 nodes[i]->next[i] = currNode->next[i];
 
             free(nodes);
+            free(currNode->next);
+            free(currNode->mBox);
+            free(currNode);
             return 0;
         }
         // free(currNode);
@@ -260,6 +266,29 @@ static void skipList_print() {
 }
 
 static void skipList_close() {
+    // since the node "towers" are only pointers to themselves, we can traverse along the
+    // bottom to delete them all, so set our starting node to the first node on level 0
+    struct skipList_node *currNode = SL_HEAD->next[0];
+
+    // loop through level 0 until we hit the tail
+    while (SL_HEAD->next[0] != SL_TAIL) {
+        // move us forward so we don't lose our pointers
+        SL_HEAD->next[0] = currNode->next[0];
+        // free all the dynamically allocated stuff in the node
+        free(currNode->next);
+        free(currNode->mBox);
+        free(currNode);
+
+        // check to see if we are at the end yet
+        if (SL_HEAD->next[0] != SL_TAIL) {
+            currNode = currNode->next[0];
+        }
+    }
+    // free our beginning nodes
+    free(SL_TAIL->next);
+    free(SL_TAIL);
+    free(SL_HEAD->next);
+    free(SL_HEAD);
 
 }
 #endif //SKIPLIST_SKIPLIST_H
