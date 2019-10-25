@@ -26,7 +26,7 @@ int main() {
 
     // add to skipList
     printf("-------- Inserting --------\n");
-    for (unsigned long i  = 0; i < 12; i++) {
+    for (int i  = 0; i < 12; i++) {
         //printf("Adding ");
         skipList_add(vals[i]);
         //printf("%ld", );
@@ -36,7 +36,7 @@ int main() {
     skipList_print();
 
     printf("-------- Search for each value --------\n");
-    for (unsigned long i  = 0; i < 12; i++) {
+    for (int i  = 0; i < 12; i++) {
         if(skipList_search(vals[i]) == 0) {
             printf("Found ");
             printf("%d", vals[i]);
@@ -44,15 +44,16 @@ int main() {
         }
     }
 
-    /*printf("-------- Deleting --------\n");
+    printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < sizeof(vals); i++) {
         if(skipList_del(vals[i]) == 0) {
             printf("Deleted ");
             printf("%d", vals[i]);
             printf("\n");
         }
-    }*/
+    }
 
     skipList_print();
+    skipList_close();
     return 0;
 }

@@ -47,12 +47,14 @@ struct mailbox {
 struct skipList_node {
     //struct list_head link;
     int id;
+    unsigned int towerHeight;
     struct skipList_node** next;
     struct mailbox* mBox;
 };
 
 unsigned int MAX_SL_SIZE = 0;
 unsigned int PROB = 20000;
+unsigned int SL_SIZE = 0;
 struct skipList_node *SL_HEAD;
 struct skipList_node *SL_TAIL;
 
@@ -86,6 +88,9 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     // set values to something we know is impossible
     SL_HEAD->id = -1;
     SL_TAIL->id = -1;
+
+    SL_HEAD->towerHeight = MAX_SL_SIZE;
+    SL_TAIL->towerHeight = MAX_SL_SIZE;
 
     SL_HEAD->next = malloc(MAX_SL_SIZE * sizeof(struct skipList_node));
 
@@ -124,7 +129,7 @@ static long skipList_add(int key) {
     }
 
     // figure out how high we need to go
-    unsigned int newHeight = currLevel;
+    unsigned int newHeight = 1;
     bool ceil = false;
 
     // figure out how high we need to go
@@ -152,55 +157,30 @@ static long skipList_add(int key) {
     newNode->id = key;
     newNode->mBox = malloc(sizeof(struct mailbox));
     newNode->mBox->num = key;
+    newNode->towerHeight = newHeight;
+
+    if (newHeight-1 > SL_SIZE) {
+        SL_SIZE = newHeight-1;
+    }
 
     printf("New height is ");
     printf("%d\n", newHeight);
 
     newNode->next = malloc(newHeight * sizeof(struct skipList_node));
 
-    for (int i = 0; i <= newHeight; i++) {
+    for (int i = 0; i <= newHeight-1; i++) {
         newNode->next[i] = nodes[i]->next[i];
         nodes[i]->next[i] = newNode;
     }
-    /*//list_add(new,head);
-    int currLevel = 0;
-    bool success = false;
-    struct skipList_node *curr = LEVELS[0].headNode;
-    if (LEVELS[0].empty == true) {
-        do {
-            node_t *new_node = (node_t *) malloc(sizeof(node_t));
-            new_node->key = key;
-            new_node->right = NULL;
-            curr->right = new_node;
-        } while ((PROB - next_random) > 0);
-        LEVELS[0].empty = false;
-        //success = true;
-    } else {
-        while (!success) {
-            generate_random_int();
-            if (curr->right->key <= key) {
-                curr = curr->right;
-            } else if (curr->right->key > key && LEVELS[currLevel+1].empty == false) {
-                currLevel++;
-            } else if (curr->right == NULL) {
-                do {
-                    node_t *new_node = (node_t *) malloc(sizeof(node_t));
-                    new_node->key = key;
-                    new_node->right = NULL;
-                    curr->right = new_node;
-                } while ((PROB - next_random) > 0);
-                LEVELS[0].empty = false;
-                success = true;
-            }
-        }
-    }
-    return key;*/
+    free(nodes);
+
+    //free(newNode);
 }
 
 // search function
 long skipList_search(int target) {
     unsigned int currLevel = MAX_SL_SIZE - 1;
-    struct skipList_node *currNode = SL_HEAD;
+    //struct skipList_node *currNode = SL_HEAD;
 
     for (int i = 0; i < MAX_SL_SIZE; i++) {
 
@@ -220,45 +200,45 @@ long skipList_search(int target) {
 long skipList_del(int target) {
     // TODO: Delete function
 
-    if (skipList_search(target) != 0)
+    if (skipList_search(target) != 0 || target < 0)
         return 1;
     else {
-        unsigned int currLevel = MAX_SL_SIZE - 1;
-        /*struct skipList_node *currNode = SL_HEAD;
-        struct skipList_node *aheadNode = malloc(sizeof(struct skipList_node));
-        struct skipList_node **nodes = malloc(MAX_SL_SIZE * sizeof(struct skipList_node *));
 
-        for (int i = MAX_SL_SIZE-1; i >= 0; i--) {
+        unsigned int currLevel = SL_SIZE;
+        unsigned int targetHeight = 0;
+        struct skipList_node *currNode = SL_HEAD;
+        struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
+
+        for (int i = SL_SIZE; i >= 0; i--) {
             // check if we aren't at the bottom yet
-            if (currLevel > 0)
+            if (currLevel > 0) {
                 currLevel--;
+                targetHeight++;
+            }
             // keep a history of everything as we go down
             nodes[i] = currNode;
             // loop to find anything to the right that isn't a tail
             while (currNode->next[currLevel]->id < target && currNode->next[currLevel] != SL_TAIL) {
                 currNode = currNode->next[currLevel];
             }
-        }*/
-        struct skipList_node *currNode = SL_HEAD;
-
-        for (int i = 0; i < MAX_SL_SIZE; i++) {
-
-            while (currNode->next[i]->id >= 0) {
-                if (currNode->next[i]->id == target) {
-                    for (int i = 0; i < currLevel; i++) {
-                        currNode->next[i] = currNode->next[currLevel]->next[currLevel];
-                    }
-                    return 0;
-                }
-                else
-                    currNode = currNode->next[i];
-            }
         }
-        // aheadNode = currNode->next[currLevel]->next[currLevel];
 
-        return 0;
+        currNode = currNode->next[currLevel];
+        if (currNode->id == target) {
+            for (int i = 0; i < currNode->towerHeight; i++)
+                nodes[i]->next[i] = currNode->next[i];
+
+            free(nodes);
+            return 0;
+        }
+        // free(currNode);
+
+        else {
+            return 1;
+        }
+
     }
-    return target;
+
 }
 
 static void skipList_print() {
@@ -279,4 +259,7 @@ static void skipList_print() {
     }
 }
 
+static void skipList_close() {
+
+}
 #endif //SKIPLIST_SKIPLIST_H
