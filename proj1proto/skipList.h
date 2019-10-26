@@ -34,19 +34,20 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 #include "list.h"
 
 // structs to hold our node data
-/*typedef struct skipList_head {
-    struct skipList_node *headNode;
-    //int height, length;
-    bool empty;
-} head_t;*/
+
+struct mailBox_node {
+    unsigned char* msg;
+    struct mailBox_node* next;
+};
 
 struct mailbox {
-    int num;
+    int numMessages;
+    struct mailBox_node *head;
 };
 
 struct skipList_node {
     //struct list_head link;
-    int id;
+    unsigned long id;
     unsigned int towerHeight;
     struct skipList_node** next;
     struct mailbox* mBox;
@@ -58,9 +59,9 @@ unsigned int SL_SIZE = 0;
 struct skipList_node *SL_HEAD;
 struct skipList_node *SL_TAIL;
 
-//head_t *LEVELS = NULL;
-
+//
 // provided random generation functions
+//
 static unsigned int next_random = 9001;
 
 static unsigned int generate_random_int(void) {
@@ -72,7 +73,9 @@ static void seed_random(unsigned int seed) {
     next_random = seed;
 }
 
-// initialization function
+//
+// SkipList functions
+//
 long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     //skipList->height = 1;
     //skipList->length = 0;
@@ -86,8 +89,8 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     SL_TAIL = malloc(sizeof(struct skipList_node));
     SL_HEAD = malloc(sizeof(struct skipList_node));
     // set values to something we know is impossible
-    SL_HEAD->id = -1;
-    SL_TAIL->id = -1;
+    SL_HEAD->id = 0;
+    SL_TAIL->id = 0;
 
     SL_HEAD->towerHeight = MAX_SL_SIZE;
     SL_TAIL->towerHeight = MAX_SL_SIZE;
@@ -110,7 +113,7 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
 }
 
 // insert function
-static long skipList_add(int key) {
+static long skipList_add(unsigned long key) {
     // various vars to keep track of skipList parameters
     unsigned int currLevel = MAX_SL_SIZE - 1;
     struct skipList_node *currNode = SL_HEAD;
@@ -146,21 +149,26 @@ static long skipList_add(int key) {
         }
     }
 
-    printf("Adding key of ");
-    printf("%d", key);
+    /*printf("Adding key of ");
+    printf("%lu", key);
     printf(" with ");
     printf("%u ", newHeight);
-    printf(" levels\n");
+    printf(" levels\n");*/
 
     // assign the pointers ahead and behind
     struct skipList_node *newNode = malloc(sizeof(struct skipList_node));
     newNode->id = key;
-    newNode->mBox = malloc(sizeof(struct mailbox));
-    newNode->mBox->num = key;
     newNode->towerHeight = newHeight;
+    // set up empty mailbox
+    newNode->mBox = malloc(sizeof(struct mailbox));
+    newNode->mBox->numMessages = 0;
 
-    printf("New height is ");
-    printf("%d\n", newHeight);
+    newNode->mBox->head = malloc(sizeof(struct mailBox_node));
+    newNode->mBox->head->next = NULL;
+    newNode->mBox->head->msg = NULL;
+
+    /*printf("New height is ");
+    printf("%d\n", newHeight);*/
 
     newNode->next = malloc(newHeight * sizeof(struct skipList_node));
 
@@ -180,14 +188,14 @@ static long skipList_add(int key) {
 }
 
 // search function
-long skipList_search(int target) {
+long skipList_search(unsigned long target) {
     unsigned int currLevel = MAX_SL_SIZE - 1;
     //struct skipList_node *currNode = SL_HEAD;
 
     for (int i = 0; i < MAX_SL_SIZE; i++) {
 
         struct skipList_node *currNode = SL_HEAD;
-        while (currNode->next[i]->id >= 0) {
+        while (currNode->next[i]->id > 0) {
             if (currNode->next[i]->id == target)
                 return 0;
             else
@@ -199,8 +207,7 @@ long skipList_search(int target) {
 }
 
 // delete function
-long skipList_del(int target) {
-    // TODO: Delete function
+long skipList_del(unsigned long target) {
 
     if (skipList_search(target) != 0 || target < 0)
         return 1;
@@ -257,7 +264,7 @@ static void skipList_print() {
 
         struct skipList_node *currNode = SL_HEAD;
         while (currNode->next[i]->id > 0) {
-            printf("%d", currNode->next[i]->id);
+            printf("%lu", currNode->next[i]->id);
             printf(" ");
             currNode = currNode->next[i];
         }
@@ -289,6 +296,59 @@ static void skipList_close() {
     free(SL_TAIL);
     free(SL_HEAD->next);
     free(SL_HEAD);
+
+}
+//
+// Mailbox Functions
+//
+
+long mBox_send(unsigned long id, const unsigned char *msg, long len) {
+    if (skipList_search(id) == 0){
+        unsigned int currLevel = SL_SIZE;
+        struct skipList_node *currNode = SL_HEAD;
+        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
+
+        for (int i = SL_SIZE; i >= 0; i--) {
+            // check if we aren't at the bottom yet
+            if (currLevel > 0) {
+                currLevel--;
+            }
+            // keep a history of everything as we go down
+            //nodes[i] = currNode;
+            // loop to find anything to the right that isn't a tail
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+                currNode = currNode->next[currLevel];
+            }
+        }
+
+        struct mailBox_node *currMboxNode = currNode->mBox->head;
+        for (int i = 0; i <= currNode->mBox->numMessages; i++) {
+            currMboxNode = currMboxNode->next;
+        }
+
+        currMboxNode->next = malloc(sizeof(struct mailBox_node));
+        currMboxNode->next->msg = malloc(sizeof(msg));
+        // TODO: loop to assign all the char pieces
+    }
+}
+
+long mBox_recv(unsigned long id, unsigned char *msg, long len) {
+
+}
+
+long mBox_length(unsigned long id) {
+
+}
+
+//
+// Access Control List Functions
+//
+
+long acl_add(unsigned long id, pid_t process_id) {
+
+}
+
+long acl_remove(unsigned long id, pid_t process_id) {
 
 }
 #endif //SKIPLIST_SKIPLIST_H

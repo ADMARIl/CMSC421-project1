@@ -18,7 +18,7 @@ int main() {
     //seed_random(time(NULL));
     seed_random(1000000);
     // test vals
-    int vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 1, 56, 66};
+    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 2, 56, 66};
 
     // start skipList
     // struct skipList_head skipList;
@@ -27,28 +27,42 @@ int main() {
     // add to skipList
     printf("-------- Inserting --------\n");
     for (int i  = 0; i < 12; i++) {
-        //printf("Adding ");
-        skipList_add(vals[i]);
-        //printf("%ld", );
-
+        if(skipList_add(vals[i]) == 0) {
+            printf("Added mailbox id ");
+            printf("%lu", vals[i]);
+            printf("\n");
+        } else {
+            printf("Could not add ");
+            printf("%lu", vals[i]);
+            printf("\n");
+        }
     }
 
     skipList_print();
 
     printf("-------- Search for each value --------\n");
+    vals[7] = 188;
     for (int i  = 0; i < 12; i++) {
         if(skipList_search(vals[i]) == 0) {
             printf("Found ");
-            printf("%d", vals[i]);
+            printf("%lu", vals[i]);
+            printf("\n");
+        } else {
+            printf("Could not find ");
+            printf("%lu", vals[i]);
             printf("\n");
         }
     }
 
     printf("-------- Deleting --------\n");
-    for (unsigned long i  = 0; i < sizeof(vals); i++) {
+    for (unsigned long i  = 0; i < 12; i++) {
         if(skipList_del(vals[i]) == 0) {
             printf("Deleted ");
-            printf("%d", vals[i]);
+            printf("%lu", vals[i]);
+            printf("\n");
+        } else {
+            printf("Could not delete ");
+            printf("%lu", vals[i]);
             printf("\n");
         }
     }
