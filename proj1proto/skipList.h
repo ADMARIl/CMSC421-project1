@@ -31,6 +31,7 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 #include "list.h"
 
 // structs to hold our node data
@@ -149,12 +150,6 @@ static long skipList_add(unsigned long key) {
         }
     }
 
-    /*printf("Adding key of ");
-    printf("%lu", key);
-    printf(" with ");
-    printf("%u ", newHeight);
-    printf(" levels\n");*/
-
     // assign the pointers ahead and behind
     struct skipList_node *newNode = malloc(sizeof(struct skipList_node));
     newNode->id = key;
@@ -166,9 +161,6 @@ static long skipList_add(unsigned long key) {
     newNode->mBox->head = malloc(sizeof(struct mailBox_node));
     newNode->mBox->head->next = NULL;
     newNode->mBox->head->msg = NULL;
-
-    /*printf("New height is ");
-    printf("%d\n", newHeight);*/
 
     newNode->next = malloc(newHeight * sizeof(struct skipList_node));
 
@@ -265,7 +257,15 @@ static void skipList_print() {
         struct skipList_node *currNode = SL_HEAD;
         while (currNode->next[i]->id > 0) {
             printf("%lu", currNode->next[i]->id);
-            printf(" ");
+            printf(": ");
+            // make sure we aren't at the head or tail before we try to access the messages
+            if (currNode != SL_HEAD && currNode != SL_TAIL) {
+                struct mailBox_node *currMboxNode = currNode->mBox->head;
+                while (currMboxNode->next != NULL) {
+                    printf("message: %s", currMboxNode->next->msg);
+                    currMboxNode = currMboxNode->next;
+                }
+            }
             currNode = currNode->next[i];
         }
         printf("\n");
@@ -322,7 +322,7 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
         }
 
         struct mailBox_node *currMboxNode = currNode->mBox->head;
-        for (int i = 0; i <= currNode->mBox->numMessages; i++) {
+        for (int i = 0; i < currNode->mBox->numMessages; i++) {
             currMboxNode = currMboxNode->next;
         }
 
@@ -330,7 +330,10 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
         currMboxNode->next->msg = malloc(sizeof(msg));
         currNode->mBox->numMessages++;
         // TODO: loop to assign all the char pieces
+        memcpy(currMboxNode->next->msg, msg, len);
+
     }
+    return 0;
 }
 
 long mBox_recv(unsigned long id, unsigned char *msg, long len) {
@@ -362,6 +365,7 @@ long mBox_recv(unsigned long id, unsigned char *msg, long len) {
         currNode->mBox->numMessages++;
         // TODO: loop to assign all the char pieces
     }
+    return 0;
 }
 
 long mBox_length(unsigned long id) {

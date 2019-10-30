@@ -38,6 +38,9 @@ int main() {
         }
     }
 
+    const unsigned char testMsg[4] = {'t','e','s','t'};
+    mBox_send(vals[4], (const unsigned char *) testMsg, 4);
+
     skipList_print();
 
     printf("-------- Search for each value --------\n");
