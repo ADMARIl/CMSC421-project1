@@ -355,6 +355,16 @@
 431	common	fsconfig		__x64_sys_fsconfig
 432	common	fsmount			__x64_sys_fsmount
 433	common	fspick			__x64_sys_fspick
+434 common  mbx421_init     __x64_sys_mbx421_init
+435 common  mbx421_shutdown __x64_sys_mbx421_shutdown
+436 common  mbx421_create   __x64_sys_mbx421_create
+437 common  mbx421_destroy  __x64_sys_mbx421_destroy
+438 common  mbx421_count    __x64_sys_mbx421_count
+439 common  mbx421_send     __x64_sys_mbx421_send
+440 common  mbx421_recv     __x64_sys_mbx421_recv
+441 common  mbx421_length   __x64_sys_mbx421_length
+442 common  mbx421_acl_add  __x64_sys_mbx421_acl_add
+443 common  mbx421_acl_remove   __x64_sys_mbx421_acl_remove
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact

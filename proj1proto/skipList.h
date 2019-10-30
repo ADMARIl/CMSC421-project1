@@ -328,15 +328,63 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
 
         currMboxNode->next = malloc(sizeof(struct mailBox_node));
         currMboxNode->next->msg = malloc(sizeof(msg));
+        currNode->mBox->numMessages++;
         // TODO: loop to assign all the char pieces
     }
 }
 
 long mBox_recv(unsigned long id, unsigned char *msg, long len) {
+    if (skipList_search(id) == 0){
+        unsigned int currLevel = SL_SIZE;
+        struct skipList_node *currNode = SL_HEAD;
+        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
 
+        for (int i = SL_SIZE; i >= 0; i--) {
+            // check if we aren't at the bottom yet
+            if (currLevel > 0) {
+                currLevel--;
+            }
+            // keep a history of everything as we go down
+            //nodes[i] = currNode;
+            // loop to find anything to the right that isn't a tail
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+                currNode = currNode->next[currLevel];
+            }
+        }
+
+        struct mailBox_node *currMboxNode = currNode->mBox->head;
+        for (int i = 0; i <= currNode->mBox->numMessages; i++) {
+            currMboxNode = currMboxNode->next;
+        }
+
+        currMboxNode->next = malloc(sizeof(struct mailBox_node));
+        currMboxNode->next->msg = malloc(sizeof(msg));
+        currNode->mBox->numMessages++;
+        // TODO: loop to assign all the char pieces
+    }
 }
 
 long mBox_length(unsigned long id) {
+    if (skipList_search(id) == 0){
+        unsigned int currLevel = SL_SIZE;
+        struct skipList_node *currNode = SL_HEAD;
+        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
+
+        for (int i = SL_SIZE; i >= 0; i--) {
+            // check if we aren't at the bottom yet
+            if (currLevel > 0) {
+                currLevel--;
+            }
+            // keep a history of everything as we go down
+            //nodes[i] = currNode;
+            // loop to find anything to the right that isn't a tail
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+                currNode = currNode->next[currLevel];
+            }
+        }
+
+        return currNode->mBox->numMessages;
+    }
 
 }
 
