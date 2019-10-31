@@ -15,10 +15,10 @@ unsigned int SKIPLIST_SIZE = 5;
 
 int main() {
     // generate probability
-    //seed_random(time(NULL));
-    seed_random(1000000);
+    seed_random(time(NULL));
+    //seed_random(1000000);
     // test vals
-    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 90, 56, 66};
+    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 87, 22, 90, 56, 66};
 
     // start skipList
     // struct skipList_head skipList;
@@ -39,23 +39,22 @@ int main() {
     }
 
     printf("-------- Mailbox Send Test --------\n");
-    const unsigned char testMsg1[4] = {'t','e','s','t'};
-    const unsigned char testMsg2[4] = {'b','u','r','p'};
-    printf("Sending %s to mailbox %lu \n", testMsg2, vals[7]);
-    mBox_send(vals[7], (const unsigned char *) testMsg2, 4);
+    const unsigned char testMsg1[5] = {'l','i','s','p'};
+    const unsigned char testMsg2[5] = {'b','u','r','p'};
+    const unsigned char testMsg3[5] = {'C','M','S','C'};
     printf("Sending %s to mailbox %lu \n", testMsg1, vals[4]);
     mBox_send(vals[4], (const unsigned char *) testMsg1, 4);
-
-    printf("-------- Mailbox Receive Test --------\n");
-    unsigned char *testRecv = malloc(4 * sizeof(char));
-    printf("Receiving from mailbox %d \n", 21);
-    mBox_recv(21, testRecv, 4);
-    printf("Received %s \n", testRecv);
+    printf("Sending %s to mailbox %lu \n", testMsg2, vals[7]);
+    mBox_send(vals[7], (const unsigned char *) testMsg2, 4);
+    printf("Sending %s to mailbox %lu \n", testMsg3, vals[7]);
+    mBox_send(vals[7], (const unsigned char *) testMsg3, 4);
+    printf("Sending %s to mailbox %lu \n", testMsg3, vals[9]);
+    mBox_send(vals[9], (const unsigned char *) testMsg3, 4);
 
     skipList_print();
 
     printf("-------- Search for each value --------\n");
-    vals[7] = 188;
+    vals[9] = 188;
     for (int i  = 0; i < 12; i++) {
         if(skipList_search(vals[i]) == 0) {
             printf("Found ");
@@ -67,6 +66,20 @@ int main() {
             printf("\n");
         }
     }
+
+    printf("-------- Mailbox Receive Test --------\n");
+    unsigned char *testRecv = malloc(4 * sizeof(unsigned char));
+    printf("Receiving from mailbox %lu \n", vals[4]);
+    mBox_recv(vals[4], testRecv, 4);
+    printf("Received %s \n", testRecv);
+    unsigned char *testRecv2 = malloc(4 * sizeof(unsigned char));
+    printf("Receiving from mailbox %lu \n", vals[7]);
+    mBox_recv(vals[7], testRecv2, 4);
+    printf("Received %s \n", testRecv2);
+    free(testRecv);
+    free(testRecv2);
+
+    skipList_print();
 
     printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < 12; i++) {

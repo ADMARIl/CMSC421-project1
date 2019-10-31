@@ -7,9 +7,6 @@
  *  Yo dog I head you like probabilistic alternatives to lists so I wrote some
  *  code for skipList functions
  *
- *  TODO: Adjust code to work in kernel space
- *  TODO: Add more comments
- *
  _____ _     _       _
 |_   _| |   (_)     (_)
   | | | |__  _ ___   _ ___    __ _
@@ -32,6 +29,7 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 #include "list.h"
 
 // structs to hold our node data
@@ -57,6 +55,7 @@ struct skipList_node {
 unsigned int MAX_SL_SIZE = 0;
 unsigned int PROB = 20000;
 unsigned int SL_SIZE = 0;
+bool INIT_STATE = false;
 struct skipList_node *SL_HEAD;
 struct skipList_node *SL_TAIL;
 
@@ -78,26 +77,20 @@ static void seed_random(unsigned int seed) {
 // SkipList functions
 //
 long skipList_initialize(unsigned int ptrs, unsigned int prob) {
-    //skipList->height = 1;
-    //skipList->length = 0;
+    // set the globals to their new values
     MAX_SL_SIZE = ptrs;
     PROB = prob;
-
-
-    //struct skipList_node head;
-    //SL_HEAD = head;
-
+    // create the head and tail skip list nodes
     SL_TAIL = malloc(sizeof(struct skipList_node));
     SL_HEAD = malloc(sizeof(struct skipList_node));
     // set values to something we know is impossible
     SL_HEAD->id = 0;
     SL_TAIL->id = 0;
-
+    // make them the max size so we can assign pointers correctly later
     SL_HEAD->towerHeight = MAX_SL_SIZE;
     SL_TAIL->towerHeight = MAX_SL_SIZE;
-
+    // dynamically allocating nodes
     SL_HEAD->next = malloc(MAX_SL_SIZE * sizeof(struct skipList_node));
-
     SL_TAIL->next = malloc(sizeof(struct skipList_node));
     SL_TAIL->next[0] = NULL;
 
@@ -109,17 +102,53 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     // set mailbox to null for now since we aren't using them yet
     SL_HEAD->mBox = NULL;
     SL_TAIL->mBox = NULL;
-
+    // tell the world that the skiplist is ready to roll
+    INIT_STATE = true;
     return 0;
+}
+
+// search function
+long skipList_search(unsigned long target) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    // var so we know how high we are
+    unsigned int currLevel = SL_SIZE;
+    // node for us to traverse the list with
+    struct skipList_node *currNode = SL_HEAD;
+    // loop through all the nodes
+    for (int i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
+        }
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < target && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    // move forward one node so we get to the right spot
+    currNode = currNode->next[currLevel];
+    // see if we found it
+    if (currNode->id == target)
+        return 0;
+    else
+        return 1;
 }
 
 // insert function
 static long skipList_add(unsigned long key) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    // check if key already exists
+    if (skipList_search(key) == 0)
+        return EEXIST;
     // various vars to keep track of skipList parameters
     unsigned int currLevel = MAX_SL_SIZE - 1;
     struct skipList_node *currNode = SL_HEAD;
     struct skipList_node **nodes = malloc(MAX_SL_SIZE * sizeof(struct skipList_node *));
-
+    // loop through levels to find target key
     for (int i = MAX_SL_SIZE-1; i >= 0; i--) {
         // check if we aren't at the bottom yet
         if (currLevel > 0)
@@ -157,18 +186,19 @@ static long skipList_add(unsigned long key) {
     // set up empty mailbox
     newNode->mBox = malloc(sizeof(struct mailbox));
     newNode->mBox->numMessages = 0;
-
+    // initialize linked list
     newNode->mBox->head = malloc(sizeof(struct mailBox_node));
     newNode->mBox->head->next = NULL;
     newNode->mBox->head->msg = NULL;
 
     newNode->next = malloc(newHeight * sizeof(struct skipList_node));
 
+    // do pointer surgery to rebuild associations
     for (int i = 0; i <= newHeight-1; i++) {
         newNode->next[i] = nodes[i]->next[i];
         nodes[i]->next[i] = newNode;
     }
-
+    // increment size if we need to
     if (newHeight-1 > SL_SIZE) {
         SL_SIZE = newHeight-1;
     }
@@ -176,40 +206,23 @@ static long skipList_add(unsigned long key) {
     free(nodes);
 
     return 0;
-    //free(newNode);
-}
-
-// search function
-long skipList_search(unsigned long target) {
-    unsigned int currLevel = MAX_SL_SIZE - 1;
-    //struct skipList_node *currNode = SL_HEAD;
-
-    for (int i = 0; i < MAX_SL_SIZE; i++) {
-
-        struct skipList_node *currNode = SL_HEAD;
-        while (currNode->next[i]->id > 0) {
-            if (currNode->next[i]->id == target)
-                return 0;
-            else
-                currNode = currNode->next[i];
-        }
-    }
-
-    return 1;
 }
 
 // delete function
 long skipList_del(unsigned long target) {
-
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    // check if exists first
     if (skipList_search(target) != 0 || target < 0)
-        return 1;
+        return ENOENT;
     else {
-
+        // various vars to keep track of skipList parameters
         unsigned int currLevel = SL_SIZE;
         unsigned int targetHeight = 0;
         struct skipList_node *currNode = SL_HEAD;
         struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
-
+        // traverse through each level at a time
         for (int i = SL_SIZE; i >= 0; i--) {
             // check if we aren't at the bottom yet
             if (currLevel > 0) {
@@ -223,51 +236,58 @@ long skipList_del(unsigned long target) {
                 currNode = currNode->next[currLevel];
             }
         }
-
-        //struct skipList_node *freeNode = currNode;
+        // node to keep track of data to help us re-stitch the list later
         currNode = currNode->next[currLevel];
         if (currNode->id == target) {
+            // restitch changed pointers
             for (int i = 0; i < currNode->towerHeight; i++)
                 nodes[i]->next[i] = currNode->next[i];
-
+            // free dynamically allocated stuff
             free(nodes);
             free(currNode->next);
-            /*struct mailBox_node *currMboxNode = currNode->mBox->head;
-            while (currMboxNode->next != NULL) {
+            struct mailBox_node *currMboxNode = currNode->mBox->head;
+            while (currMboxNode != NULL) {
+                struct mailBox_node *tempNode = currMboxNode->next;
+                free(currMboxNode->msg);
                 free(currMboxNode);
-                currMboxNode = currMboxNode->next;
-            }*/
-            //free(currNode->mBox->head);
+                currMboxNode = tempNode;
+
+            }
             free(currNode->mBox);
             free(currNode);
             return 0;
         }
-        // free(currNode);
-
+        // return error if mailbox doesnt exist
         else {
-            return 1;
+            return ENOENT;
         }
 
     }
 
 }
 
-static void skipList_print() {
+static int skipList_print() {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
     printf("%s", "-------- Skip List -------- \n");
-
+    // loop through all the levels of the list so we can print out everything
     for (int i = 0; i < MAX_SL_SIZE; i++) {
         printf("Level ");
         printf("%d", i);
         printf("      ");
-
+        // set current pointer to head node
         struct skipList_node *currNode = SL_HEAD;
         while (currNode->next[i]->id > 0) {
+            // move to next node and print it
             currNode = currNode->next[i];
             printf("%lu", currNode->id);
 
+            // print messages if we have them
             // make sure we aren't at the head or tail before we try to access the messages
             if (currNode != SL_HEAD && currNode != SL_TAIL) {
                 printf(": ");
+                // temp struct to help us traverse the messages
                 struct mailBox_node *currMboxNode = currNode->mBox->head;
                 while (currMboxNode->next != NULL) {
                     printf("[message: %s] ", currMboxNode->next->msg);
@@ -280,9 +300,13 @@ static void skipList_print() {
         }
         printf("\n");
     }
+    return 0;
 }
 
-static void skipList_close() {
+static long skipList_close() {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
     // since the node "towers" are only pointers to themselves, we can traverse along the
     // bottom to delete them all, so set our starting node to the first node on level 0
     struct skipList_node *currNode = SL_HEAD->next[0];
@@ -293,13 +317,16 @@ static void skipList_close() {
         SL_HEAD->next[0] = currNode->next[0];
         // free all the dynamically allocated stuff in the node
         free(currNode->next);
-
+        // free mailbox memory
         struct mailBox_node *currMboxNode = currNode->mBox->head;
-        while (currMboxNode->next != NULL) {
+        while (currMboxNode != NULL) {
+            struct mailBox_node *tempNode = currMboxNode->next;
+            free(currMboxNode->msg);
             free(currMboxNode);
-            currMboxNode = currMboxNode->next;
+            currMboxNode = tempNode;
+
         }
-        //free(currNode->mBox->head);
+        // free remaining memory
         free(currNode->mBox);
         free(currNode);
 
@@ -314,12 +341,63 @@ static void skipList_close() {
     free(SL_HEAD->next);
     free(SL_HEAD);
 
+    return 0;
 }
 //
 // Mailbox Functions
 //
 
 long mBox_send(unsigned long id, const unsigned char *msg, long len) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    // is length invalid?
+    if (len < 0 || id == 0)
+        return EINVAL;
+    if (skipList_search(id) == 0){
+        // starting vars to help us traverse the list
+        unsigned int currLevel = SL_SIZE;
+        struct skipList_node *currNode = SL_HEAD;
+        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
+
+        for (int i = SL_SIZE; i >= 0; i--) {
+            // check if we aren't at the bottom yet
+            if (currLevel > 0) {
+                currLevel--;
+            }
+            // loop to find anything to the right that isn't a tail
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+                currNode = currNode->next[currLevel];
+            }
+        }
+        currNode = currNode->next[currLevel];
+
+        // move mailbox pointer to the end of the list
+        struct mailBox_node *currMboxNode = currNode->mBox->head;
+        for (int i = 0; i < currNode->mBox->numMessages; i++) {
+            currMboxNode = currMboxNode->next;
+        }
+        // add new message
+        currMboxNode->next = malloc(sizeof(struct mailBox_node));
+        currMboxNode->next->msg = malloc(len * sizeof(char));
+        currNode->mBox->numMessages++;
+        // copy message over into list
+        memcpy(currMboxNode->next->msg, msg, len);
+
+        return 0;
+    } else {
+        // mailbox doesn't exist
+        return ENOENT;
+    }
+}
+
+long mBox_recv(unsigned long id, unsigned char *msg, long len) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    // are the values valid?
+    if (len < 0 || id == 0)
+        return EINVAL;
     if (skipList_search(id) == 0){
         unsigned int currLevel = SL_SIZE;
         struct skipList_node *currNode = SL_HEAD;
@@ -330,8 +408,6 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
             if (currLevel > 0) {
                 currLevel--;
             }
-            // keep a history of everything as we go down
-            //nodes[i] = currNode;
             // loop to find anything to the right that isn't a tail
             while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
                 currNode = currNode->next[currLevel];
@@ -340,77 +416,49 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
 
         currNode = currNode->next[currLevel];
         struct mailBox_node *currMboxNode = currNode->mBox->head;
-        for (int i = 0; i < currNode->mBox->numMessages; i++) {
-            currMboxNode = currMboxNode->next;
+
+        if (currNode->mBox->numMessages == 0) {
+            return ESRCH;
         }
+        memcpy(msg, currMboxNode->next->msg, len);
+        struct mailBox_node *tempNode = currNode->mBox->head->next->next;
 
-        currMboxNode->next = malloc(sizeof(struct mailBox_node));
-        currMboxNode->next->msg = malloc(sizeof(msg));
-        currNode->mBox->numMessages++;
-
-        memcpy(currMboxNode->next->msg, msg, len);
-
-    }
-    return 0;
-}
-
-long mBox_recv(unsigned long id, unsigned char *msg, long len) {
-    if (skipList_search(id) == 0){
-        unsigned int currLevel = SL_SIZE;
-        struct skipList_node *currNode = SL_HEAD;
-        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
-
-        for (int i = SL_SIZE; i >= 0; i--) {
-            // check if we aren't at the bottom yet
-            if (currLevel > 0) {
-                currLevel--;
-            }
-            // keep a history of everything as we go down
-            //nodes[i] = currNode;
-            // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
-                currNode = currNode->next[currLevel];
-            }
-        }
-
-        struct mailBox_node *currMboxNode = currNode->mBox->head;
-        /*for (int i = 0; i <= currNode->mBox->numMessages; i++) {
-            currMboxNode = currMboxNode->next;
-        }*/
-
-        if (currMboxNode->next != NULL) {
-            memcpy(msg, currMboxNode->next->msg, len);
-            //free(currMboxNode->next);
-            currNode->mBox->head->next = currMboxNode->next->next;
-        } else {
-            // TODO: return error
-            return 1;
-        }
+        free(currNode->mBox->head->next->msg);
+        free(currNode->mBox->head->next);
+        currNode->mBox->head->next = tempNode;
+        currNode->mBox->numMessages--;
     }
     return 0;
 }
 
 long mBox_length(unsigned long id) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
     if (skipList_search(id) == 0){
         unsigned int currLevel = SL_SIZE;
         struct skipList_node *currNode = SL_HEAD;
-        //struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
 
+        // loop over to till we find what we are looking for
         for (int i = SL_SIZE; i >= 0; i--) {
             // check if we aren't at the bottom yet
             if (currLevel > 0) {
                 currLevel--;
             }
-            // keep a history of everything as we go down
-            //nodes[i] = currNode;
             // loop to find anything to the right that isn't a tail
             while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
                 currNode = currNode->next[currLevel];
             }
         }
-
-        return currNode->mBox->numMessages;
-    }
+        // return the size of the message if it is there
+        if (currNode->mBox->head->next != NULL)
+            return sizeof(currNode->mBox->head->next->msg);
+        else
+            // no messages?
+            return ESRCH;
+    } else
+        // no mailbox?
+        return ENOENT;
 
 }
 
