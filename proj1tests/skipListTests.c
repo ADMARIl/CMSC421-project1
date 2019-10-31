@@ -1,34 +1,37 @@
-/*
- *  File: main.c
- *  Author: Andrew Ingson (aings1@umbc.edu)
- *  Date; 10/13/19
- *  CMSC 421 (Principles of Operating Systems) Project 1
- *
- *  Driver for testing the skipList functions
- */
+//
+// Created by aings1 on 10/31/19.
+//
 
 #include <stdio.h>
-//#include <time.h>
-#include "skipList.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <linux/kernel.h>
+#include <sys/syscall.h>
 
-unsigned int SKIPLIST_SIZE = 1;
+#define sys_mbx421_init 434
+#define sys_mbx421_shutdown 435
+#define sys_mbx421_create 436
+#define sys_mbx421_destroy 437
+#define sys_mbx421_count 438
+#define sys_mbx421_send 439
+#define sys_mbx421_recv 440
+#define sys_mbx421_length 441
+#define sys_mbx421_acl_add 442
+#define sys_mbx421_acl_remove 443
+
+/*long init_syscall(unsigned int ptrs, unsigned int prob) {
+    return syscall(sys_mbx421_init);
+}*/
 
 int main() {
-    // generate probability
-    seed_random(time(NULL));
-    //seed_random(1000000);
-    // test vals
+    printf("Hello, World!\n");
+    long res = syscall(sys_mbx421_init, 5, 16388);
+
     unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 87, 22, 90, 56, 2};
 
-    // start skipList
-    // struct skipList_head skipList;
-    if(skipList_initialize(SKIPLIST_SIZE, 16383) != 0)
-        return -1;
-
-    // add to skipList
     printf("-------- Inserting --------\n");
     for (int i  = 0; i < 12; i++) {
-        if(skipList_add(vals[i]) == 0) {
+        if(syscall(sys_mbx421_create, vals[i]) == 0) {
             printf("Added mailbox id ");
             printf("%lu", vals[i]);
             printf("\n");
@@ -44,47 +47,29 @@ int main() {
     const unsigned char testMsg2[5] = {'b','u','r','p'};
     const unsigned char testMsg3[5] = {'C','M','S','C'};
     printf("Sending %s to mailbox %lu \n", testMsg1, vals[4]);
-    mBox_send(vals[4], (const unsigned char *) testMsg1, 4);
+    syscall(sys_mbx421_send, vals[4], (const unsigned char *) testMsg1, 4);
     printf("Sending %s to mailbox %lu \n", testMsg2, vals[7]);
-    mBox_send(vals[7], (const unsigned char *) testMsg2, 4);
+    syscall(sys_mbx421_send, vals[7], (const unsigned char *) testMsg2, 4);
     printf("Sending %s to mailbox %lu \n", testMsg3, vals[7]);
-    mBox_send(vals[7], (const unsigned char *) testMsg3, 4);
+    syscall(sys_mbx421_send, vals[7], (const unsigned char *) testMsg3, 4);
     printf("Sending %s to mailbox %lu \n", testMsg3, vals[9]);
-    mBox_send(vals[9], (const unsigned char *) testMsg3, 4);
-
-    skipList_print();
-
-    printf("-------- Search for each value --------\n");
-    vals[9] = 188;
-    for (int i  = 0; i < 12; i++) {
-        if(skipList_search(vals[i]) == 0) {
-            printf("Found ");
-            printf("%lu", vals[i]);
-            printf("\n");
-        } else {
-            printf("Could not find ");
-            printf("%lu", vals[i]);
-            printf("\n");
-        }
-    }
+    syscall(sys_mbx421_send, vals[9], (const unsigned char *) testMsg3, 4);
 
     printf("-------- Mailbox Receive Test --------\n");
     unsigned char *testRecv = malloc(4 * sizeof(unsigned char));
     printf("Receiving from mailbox %lu \n", vals[4]);
-    mBox_recv(vals[4], testRecv, 4);
+    syscall(sys_mbx421_recv, vals[4], testRecv, 4);
     printf("Received %s \n", testRecv);
     unsigned char *testRecv2 = malloc(4 * sizeof(unsigned char));
     printf("Receiving from mailbox %lu \n", vals[7]);
-    mBox_recv(vals[7], testRecv2, 4);
+    syscall(sys_mbx421_recv, vals[7], testRecv2, 4);
     printf("Received %s \n", testRecv2);
     free(testRecv);
     free(testRecv2);
 
-    skipList_print();
-
     printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < 12; i++) {
-        if(skipList_del(vals[i]) == 0) {
+        if(syscall(sys_mbx421_destroy, vals[i]) == 0) {
             printf("Deleted ");
             printf("%lu", vals[i]);
             printf("\n");
@@ -95,8 +80,6 @@ int main() {
         }
     }
 
-
-    skipList_print();
-    skipList_close();
+    syscall(sys_mbx421_shutdown);
     return 0;
 }

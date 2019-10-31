@@ -54,11 +54,13 @@ CMAKE_BINARY_DIR = /home/aings1/CLionProjects/project1/proj1proto/cmake-build-de
 
 # The main recursive "all" target.
 all: CMakeFiles/skipList.dir/all
+all: CMakeFiles/skipListTest.dir/all
 
 .PHONY : all
 
 # The main recursive "clean" target.
 clean: CMakeFiles/skipList.dir/clean
+clean: CMakeFiles/skipListTest.dir/clean
 
 .PHONY : clean
 
@@ -93,6 +95,33 @@ skipList: CMakeFiles/skipList.dir/rule
 CMakeFiles/skipList.dir/clean:
 	$(MAKE) -f CMakeFiles/skipList.dir/build.make CMakeFiles/skipList.dir/clean
 .PHONY : CMakeFiles/skipList.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/skipListTest.dir
+
+# All Build rule for target.
+CMakeFiles/skipListTest.dir/all:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/depend
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target skipListTest"
+.PHONY : CMakeFiles/skipListTest.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/skipListTest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/skipListTest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/skipListTest.dir/rule
+
+# Convenience name for target.
+skipListTest: CMakeFiles/skipListTest.dir/rule
+
+.PHONY : skipListTest
+
+# clean rule for target.
+CMakeFiles/skipListTest.dir/clean:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/clean
+.PHONY : CMakeFiles/skipListTest.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

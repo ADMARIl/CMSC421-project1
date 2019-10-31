@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/aings1/CLionProjects/project1/proj1proto/cmake-build-de
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/opt/clion-2019.2.4/bin/cmake/linux/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -77,6 +66,17 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/opt/clion-2019.2.4/bin/cmake/linux/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -123,6 +123,46 @@ skipList/fast:
 	$(MAKE) -f CMakeFiles/skipList.dir/build.make CMakeFiles/skipList.dir/build
 .PHONY : skipList/fast
 
+#=============================================================================
+# Target rules for targets named skipListTest
+
+# Build rule for target.
+skipListTest: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 skipListTest
+.PHONY : skipListTest
+
+# fast build rule for target.
+skipListTest/fast:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/build
+.PHONY : skipListTest/fast
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.o: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.o
+
+# target to build an object file
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.i: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.i
+
+# target to preprocess a source file
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.s: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.s
+
+# target to generate assembly for a file
+home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s:
+	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
+
 main.o: main.c.o
 
 .PHONY : main.o
@@ -156,9 +196,13 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
-	@echo "... skipList"
 	@echo "... edit_cache"
+	@echo "... skipList"
+	@echo "... rebuild_cache"
+	@echo "... skipListTest"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.o"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.i"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

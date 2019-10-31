@@ -49,6 +49,8 @@ static void seed_random(unsigned int seed) {
 }
 
 SYSCALL_DEFINE2(mbx421_init, unsigned int, ptrs, unsigned int, prob) {
+    if (ptrs < 1 || prob < 1)
+        return EINVAL;
     // set the globals to their new values
     MAX_SL_SIZE = ptrs;
     PROB = prob;
