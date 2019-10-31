@@ -8,7 +8,7 @@
  */
 
 #include <stdio.h>
-#include <time.h>
+//#include <time.h>
 #include "skipList.h"
 
 unsigned int SKIPLIST_SIZE = 5;
@@ -18,7 +18,7 @@ int main() {
     seed_random(time(NULL));
     //seed_random(1000000);
     // test vals
-    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 87, 22, 90, 56, 66};
+    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 87, 22, 90, 56, 2};
 
     // start skipList
     // struct skipList_head skipList;

@@ -4,8 +4,6 @@
 
 #include <linux/kernel.h>
 #include <linux/syscalls.h>
-//#include <linux/stdlib.h>
-//#include <stdio.h>
 #include <linux/time.h>
 #include <linux/string.h>
 #include <linux/errno.h>
@@ -54,6 +52,8 @@ SYSCALL_DEFINE2(mbx421_init, unsigned int, ptrs, unsigned int, prob) {
     // set the globals to their new values
     MAX_SL_SIZE = ptrs;
     PROB = prob;
+    // seed random
+    //seed_random(time(NULL));
     // create the head and tail skip list nodes
     SL_TAIL = kmalloc(sizeof(struct skipList_node), GFP_KERNEL);
     SL_HEAD = kmalloc(sizeof(struct skipList_node), GFP_KERNEL);
@@ -69,7 +69,8 @@ SYSCALL_DEFINE2(mbx421_init, unsigned int, ptrs, unsigned int, prob) {
     SL_TAIL->next[0] = NULL;
 
     // assign the next node of head to tail since there's nothing in the sl yet
-    for (int i = 0; i < ptrs; i++) {
+    int i = 0;
+    for (i = 0; i < ptrs; i++) {
         SL_HEAD->next[i] = SL_TAIL;
     }
 
@@ -126,15 +127,13 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
-    // check if key already exists
-    if (skipList_search(id) == 0)
-        return EEXIST;
     // various vars to keep track of skipList parameters
     unsigned int currLevel = MAX_SL_SIZE - 1;
     struct skipList_node *currNode = SL_HEAD;
     struct skipList_node **nodes = kmalloc(MAX_SL_SIZE * sizeof(struct skipList_node *), GFP_KERNEL);
     // loop through levels to find target key
-    for (int i = MAX_SL_SIZE-1; i >= 0; i--) {
+    int i = 0;
+    for (i = MAX_SL_SIZE-1; i >= 0; i--) {
         // check if we aren't at the bottom yet
         if (currLevel > 0)
             currLevel--;
@@ -145,6 +144,10 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
             currNode = currNode->next[currLevel];
         }
     }
+
+    // check if key already exists
+    if (currNode->next[0]->id == id)
+        return EEXIST;
 
     // figure out how high we need to go
     unsigned int newHeight = 1;
@@ -179,7 +182,7 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
     newNode->next = kmalloc(newHeight * sizeof(struct skipList_node), GFP_KERNEL);
 
     // do pointer surgery to rebuild associations
-    for (int i = 0; i <= newHeight-1; i++) {
+    for (i = 0; i <= newHeight-1; i++) {
         newNode->next[i] = nodes[i]->next[i];
         nodes[i]->next[i] = newNode;
     }
@@ -194,11 +197,11 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
 }
 
 SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
-     // check if mailbox system has been initialized
+    // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
     // check if exists first
-    if (skipList_search(id) != 0 || id < 0)
+    if (id < 0)
         return ENOENT;
     else {
         // various vars to keep track of skipList parameters
@@ -207,7 +210,8 @@ SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
         struct skipList_node *currNode = SL_HEAD;
         struct skipList_node **nodes = kmalloc(SL_SIZE * sizeof(struct skipList_node *), GFP_KERNEL);
         // traverse through each level at a time
-        for (int i = SL_SIZE; i >= 0; i--) {
+        int i = 0;
+        for (i = SL_SIZE; i >= 0; i--) {
             // check if we aren't at the bottom yet
             if (currLevel > 0) {
                 currLevel--;
@@ -224,7 +228,7 @@ SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
         currNode = currNode->next[currLevel];
         if (currNode->id == id) {
             // restitch changed pointers
-            for (int i = 0; i < currNode->towerHeight; i++)
+            for (i = 0; i < currNode->towerHeight; i++)
                 nodes[i]->next[i] = currNode->next[i];
             // kfree dynamically allocated stuff
             kfree(nodes);
@@ -247,33 +251,30 @@ SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
         }
 
     }
+
 }
 
 SYSCALL_DEFINE1(mbx421_count, unsigned long, id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
-    if (skipList_search(id) == 0){
-        unsigned int currLevel = SL_SIZE;
-        struct skipList_node *currNode = SL_HEAD;
-
-        // loop over to till we find what we are looking for
-        for (int i = SL_SIZE; i >= 0; i--) {
-            // check if we aren't at the bottom yet
-            if (currLevel > 0) {
-                currLevel--;
-            }
-            // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
-                currNode = currNode->next[currLevel];
-            }
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
         }
-        // return the amount of messages if they are there
-        return currNode->mBox->numMessages;
-    } else
-        // no mailbox?
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
         return ENOENT;
-
+    return currNode->mBox->numMessages;
 }
 
 SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg, long, len) {
@@ -283,40 +284,31 @@ SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg
     // is length invalid?
     if (len < 0 || id == 0)
         return EINVAL;
-    if (skipList_search(id) == 0){
-        // starting vars to help us traverse the list
-        unsigned int currLevel = SL_SIZE;
-        struct skipList_node *currNode = SL_HEAD;
-
-        for (int i = SL_SIZE; i >= 0; i--) {
-            // check if we aren't at the bottom yet
-            if (currLevel > 0) {
-                currLevel--;
-            }
-            // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
-                currNode = currNode->next[currLevel];
-            }
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
         }
-        currNode = currNode->next[currLevel];
-
-        // move mailbox pointer to the end of the list
-        struct mailBox_node *currMboxNode = currNode->mBox->head;
-        for (int i = 0; i < currNode->mBox->numMessages; i++) {
-            currMboxNode = currMboxNode->next;
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
         }
-        // add new message
-        currMboxNode->next = kmalloc(sizeof(struct mailBox_node), GFP_KERNEL);
-        currMboxNode->next->msg = kmalloc(len * sizeof(char), GFP_KERNEL);
-        currNode->mBox->numMessages++;
-        // copy message over into list
-        memcpy(currMboxNode->next->msg, msg, len);
-
-        return 0;
-    } else {
-        // mailbox doesn't exist
-        return ENOENT;
     }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
+        return ENOENT;
+    struct mailBox_node *currMboxNode = currNode->mBox->head;
+    for (i = 0; i < currNode->mBox->numMessages; i++) {
+        currMboxNode = currMboxNode->next;
+    }
+    currMboxNode->next = kmalloc(sizeof(struct mailBox_node), GFP_KERNEL);
+    currMboxNode->next->msg = kmalloc(len * sizeof(char), GFP_KERNEL);
+    currNode->mBox->numMessages++;
+    memcpy(currMboxNode->next->msg, msg, len);
+    return 0;
 }
 
 SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long, len) {
@@ -326,35 +318,32 @@ SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long
     // are the values valid?
     if (len < 0 || id == 0)
         return EINVAL;
-    if (skipList_search(id) == 0){
-        unsigned int currLevel = SL_SIZE;
-        struct skipList_node *currNode = SL_HEAD;
-
-        for (int i = SL_SIZE; i >= 0; i--) {
-            // check if we aren't at the bottom yet
-            if (currLevel > 0) {
-                currLevel--;
-            }
-            // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
-                currNode = currNode->next[currLevel];
-            }
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
         }
-
-        currNode = currNode->next[currLevel];
-        struct mailBox_node *currMboxNode = currNode->mBox->head;
-
-        if (currNode->mBox->numMessages == 0) {
-            return ESRCH;
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
         }
-        memcpy(msg, currMboxNode->next->msg, len);
-        struct mailBox_node *tempNode = currNode->mBox->head->next->next;
-
-        kfree(currNode->mBox->head->next->msg);
-        kfree(currNode->mBox->head->next);
-        currNode->mBox->head->next = tempNode;
-        currNode->mBox->numMessages--;
     }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
+        return ENOENT;
+    struct mailBox_node *currMboxNode = currNode->mBox->head;
+    if (currNode->mBox->numMessages == 0) {
+        return ESRCH;
+    }
+    memcpy(msg, currMboxNode->next->msg, len);
+    struct mailBox_node *tempNode = currNode->mBox->head->next->next;
+    kfree(currNode->mBox->head->next->msg);
+    kfree(currNode->mBox->head->next);
+    currNode->mBox->head->next = tempNode;
+    currNode->mBox->numMessages--;
     return 0;
 }
 
@@ -362,30 +351,27 @@ SYSCALL_DEFINE1(mbx421_length, unsigned long, id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
-    if (skipList_search(id) == 0){
-        unsigned int currLevel = SL_SIZE;
-        struct skipList_node *currNode = SL_HEAD;
-
-        // loop over to till we find what we are looking for
-        for (int i = SL_SIZE; i >= 0; i--) {
-            // check if we aren't at the bottom yet
-            if (currLevel > 0) {
-                currLevel--;
-            }
-            // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
-                currNode = currNode->next[currLevel];
-            }
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
         }
-        // return the size of the message if it is there
-        if (currNode->mBox->head->next != NULL)
-            return sizeof(currNode->mBox->head->next->msg);
-        else
-            // no messages?
-            return ESRCH;
-    } else
-        // no mailbox?
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
         return ENOENT;
+    if (currNode->mBox->head->next != NULL)
+        return sizeof(currNode->mBox->head->next->msg);
+    else
+        // no messages?
+        return ESRCH;
 }
 
 SYSCALL_DEFINE2(mbx421_acl_add, unsigned long, id, pid_t, process_id) {
