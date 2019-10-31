@@ -26,7 +26,7 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 // include all the things
 
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <time.h>
 #include <string.h>
 #include <errno.h>
@@ -137,12 +137,12 @@ long skipList_search(unsigned long target) {
 }
 
 // insert function
-static long skipList_add(unsigned long key) {
+static long skipList_add(unsigned long id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
     // check if key already exists
-    if (skipList_search(key) == 0)
+    if (skipList_search(id) == 0)
         return EEXIST;
     // various vars to keep track of skipList parameters
     unsigned int currLevel = MAX_SL_SIZE - 1;
@@ -156,7 +156,7 @@ static long skipList_add(unsigned long key) {
         // keep a history of everything as we go down
         nodes[i] = currNode;
         // loop to find anything to the right that isn't a tail
-        while (currNode->next[currLevel]->id < key && currNode->next[currLevel] != SL_TAIL) {
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
             currNode = currNode->next[currLevel];
         }
     }
@@ -181,7 +181,7 @@ static long skipList_add(unsigned long key) {
 
     // assign the pointers ahead and behind
     struct skipList_node *newNode = malloc(sizeof(struct skipList_node));
-    newNode->id = key;
+    newNode->id = id;
     newNode->towerHeight = newHeight;
     // set up empty mailbox
     newNode->mBox = malloc(sizeof(struct mailbox));
@@ -209,12 +209,12 @@ static long skipList_add(unsigned long key) {
 }
 
 // delete function
-long skipList_del(unsigned long target) {
+long skipList_del(unsigned long id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
     // check if exists first
-    if (skipList_search(target) != 0 || target < 0)
+    if (skipList_search(id) != 0 || id < 0)
         return ENOENT;
     else {
         // various vars to keep track of skipList parameters
@@ -232,13 +232,13 @@ long skipList_del(unsigned long target) {
             // keep a history of everything as we go down
             nodes[i] = currNode;
             // loop to find anything to the right that isn't a tail
-            while (currNode->next[currLevel]->id < target && currNode->next[currLevel] != SL_TAIL) {
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
                 currNode = currNode->next[currLevel];
             }
         }
         // node to keep track of data to help us re-stitch the list later
         currNode = currNode->next[currLevel];
-        if (currNode->id == target) {
+        if (currNode->id == id) {
             // restitch changed pointers
             for (int i = 0; i < currNode->towerHeight; i++)
                 nodes[i]->next[i] = currNode->next[i];
@@ -430,8 +430,8 @@ long mBox_recv(unsigned long id, unsigned char *msg, long len) {
     }
     return 0;
 }
-
-long mBox_length(unsigned long id) {
+// length
+long mBox_nextSize(unsigned long id) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
@@ -456,6 +456,33 @@ long mBox_length(unsigned long id) {
         else
             // no messages?
             return ESRCH;
+    } else
+        // no mailbox?
+        return ENOENT;
+
+}
+// count
+long mBox_numMessages(unsigned long id) {
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    if (skipList_search(id) == 0){
+        unsigned int currLevel = SL_SIZE;
+        struct skipList_node *currNode = SL_HEAD;
+
+        // loop over to till we find what we are looking for
+        for (int i = SL_SIZE; i >= 0; i--) {
+            // check if we aren't at the bottom yet
+            if (currLevel > 0) {
+                currLevel--;
+            }
+            // loop to find anything to the right that isn't a tail
+            while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+                currNode = currNode->next[currLevel];
+            }
+        }
+        // return the amount of messages if they are there
+        return currNode->mBox->numMessages;
     } else
         // no mailbox?
         return ENOENT;
