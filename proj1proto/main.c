@@ -18,7 +18,7 @@ int main() {
     //seed_random(time(NULL));
     seed_random(1000000);
     // test vals
-    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 2, 56, 66};
+    unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 21, 22, 90, 56, 66};
 
     // start skipList
     // struct skipList_head skipList;
@@ -38,8 +38,19 @@ int main() {
         }
     }
 
-    const unsigned char testMsg[4] = {'t','e','s','t'};
-    mBox_send(vals[4], (const unsigned char *) testMsg, 4);
+    printf("-------- Mailbox Send Test --------\n");
+    const unsigned char testMsg1[4] = {'t','e','s','t'};
+    const unsigned char testMsg2[4] = {'b','u','r','p'};
+    printf("Sending %s to mailbox %lu \n", testMsg2, vals[7]);
+    mBox_send(vals[7], (const unsigned char *) testMsg2, 4);
+    printf("Sending %s to mailbox %lu \n", testMsg1, vals[4]);
+    mBox_send(vals[4], (const unsigned char *) testMsg1, 4);
+
+    printf("-------- Mailbox Receive Test --------\n");
+    unsigned char *testRecv = malloc(4 * sizeof(char));
+    printf("Receiving from mailbox %d \n", 21);
+    mBox_recv(21, testRecv, 4);
+    printf("Received %s \n", testRecv);
 
     skipList_print();
 
@@ -69,6 +80,7 @@ int main() {
             printf("\n");
         }
     }
+
 
     skipList_print();
     skipList_close();

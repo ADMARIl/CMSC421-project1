@@ -232,6 +232,12 @@ long skipList_del(unsigned long target) {
 
             free(nodes);
             free(currNode->next);
+            /*struct mailBox_node *currMboxNode = currNode->mBox->head;
+            while (currMboxNode->next != NULL) {
+                free(currMboxNode);
+                currMboxNode = currMboxNode->next;
+            }*/
+            //free(currNode->mBox->head);
             free(currNode->mBox);
             free(currNode);
             return 0;
@@ -256,17 +262,21 @@ static void skipList_print() {
 
         struct skipList_node *currNode = SL_HEAD;
         while (currNode->next[i]->id > 0) {
-            printf("%lu", currNode->next[i]->id);
-            printf(": ");
+            currNode = currNode->next[i];
+            printf("%lu", currNode->id);
+
             // make sure we aren't at the head or tail before we try to access the messages
             if (currNode != SL_HEAD && currNode != SL_TAIL) {
+                printf(": ");
                 struct mailBox_node *currMboxNode = currNode->mBox->head;
                 while (currMboxNode->next != NULL) {
-                    printf("message: %s", currMboxNode->next->msg);
+                    printf("[message: %s] ", currMboxNode->next->msg);
                     currMboxNode = currMboxNode->next;
                 }
+            } else {
+                printf(" ");
             }
-            currNode = currNode->next[i];
+
         }
         printf("\n");
     }
@@ -283,6 +293,13 @@ static void skipList_close() {
         SL_HEAD->next[0] = currNode->next[0];
         // free all the dynamically allocated stuff in the node
         free(currNode->next);
+
+        struct mailBox_node *currMboxNode = currNode->mBox->head;
+        while (currMboxNode->next != NULL) {
+            free(currMboxNode);
+            currMboxNode = currMboxNode->next;
+        }
+        //free(currNode->mBox->head);
         free(currNode->mBox);
         free(currNode);
 
@@ -321,6 +338,7 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
             }
         }
 
+        currNode = currNode->next[currLevel];
         struct mailBox_node *currMboxNode = currNode->mBox->head;
         for (int i = 0; i < currNode->mBox->numMessages; i++) {
             currMboxNode = currMboxNode->next;
@@ -329,7 +347,7 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
         currMboxNode->next = malloc(sizeof(struct mailBox_node));
         currMboxNode->next->msg = malloc(sizeof(msg));
         currNode->mBox->numMessages++;
-        // TODO: loop to assign all the char pieces
+
         memcpy(currMboxNode->next->msg, msg, len);
 
     }
@@ -356,14 +374,18 @@ long mBox_recv(unsigned long id, unsigned char *msg, long len) {
         }
 
         struct mailBox_node *currMboxNode = currNode->mBox->head;
-        for (int i = 0; i <= currNode->mBox->numMessages; i++) {
+        /*for (int i = 0; i <= currNode->mBox->numMessages; i++) {
             currMboxNode = currMboxNode->next;
-        }
+        }*/
 
-        currMboxNode->next = malloc(sizeof(struct mailBox_node));
-        currMboxNode->next->msg = malloc(sizeof(msg));
-        currNode->mBox->numMessages++;
-        // TODO: loop to assign all the char pieces
+        if (currMboxNode->next != NULL) {
+            memcpy(msg, currMboxNode->next->msg, len);
+            //free(currMboxNode->next);
+            currNode->mBox->head->next = currMboxNode->next->next;
+        } else {
+            // TODO: return error
+            return 1;
+        }
     }
     return 0;
 }
