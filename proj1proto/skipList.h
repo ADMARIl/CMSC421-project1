@@ -80,7 +80,7 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     if (ptrs < 1 || prob < 1)
         return EINVAL;
     // set the globals to their new values
-    MAX_SL_SIZE = ptrs;
+    MAX_SL_SIZE = ptrs+1;
     PROB = prob;
     // seed random
     seed_random(time(NULL));
@@ -166,8 +166,10 @@ static long skipList_add(unsigned long id) {
     }
 
     // check if key already exists
-    if (currNode->next[0]->id == id)
+    if (currNode->next[0]->id == id) {
+        free(nodes);
         return EEXIST;
+    }
 
     // figure out how high we need to go
     unsigned int newHeight = 1;
@@ -229,7 +231,7 @@ long skipList_del(unsigned long id) {
         unsigned int currLevel = SL_SIZE;
         unsigned int targetHeight = 0;
         struct skipList_node *currNode = SL_HEAD;
-        struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *));
+        struct skipList_node **nodes = malloc(SL_SIZE * sizeof(struct skipList_node *) * 2);
         // traverse through each level at a time
         int i = 0;
         for (i = SL_SIZE; i >= 0; i--) {
@@ -252,7 +254,6 @@ long skipList_del(unsigned long id) {
             for (i = 0; i < currNode->towerHeight; i++)
                 nodes[i]->next[i] = currNode->next[i];
             // free dynamically allocated stuff
-            free(nodes);
             free(currNode->next);
             struct mailBox_node *currMboxNode = currNode->mBox->head;
             while (currMboxNode != NULL) {
@@ -264,10 +265,12 @@ long skipList_del(unsigned long id) {
             }
             free(currNode->mBox);
             free(currNode);
+            free(nodes);
             return 0;
         }
         // return error if mailbox doesnt exist
         else {
+            free(nodes);
             return ENOENT;
         }
 
@@ -282,7 +285,7 @@ static int skipList_print() {
     printf("%s", "-------- Skip List -------- \n");
     // loop through all the levels of the list so we can print out everything
     int i = 0;
-    for (i = 0; i < MAX_SL_SIZE; i++) {
+    for (i = 0; i < MAX_SL_SIZE-1; i++) {
         printf("Level ");
         printf("%d", i);
         printf("      ");
@@ -385,6 +388,7 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
         currMboxNode = currMboxNode->next;
     }
     currMboxNode->next = malloc(sizeof(struct mailBox_node));
+    currMboxNode->next->next = NULL;
     currMboxNode->next->msg = malloc(len * sizeof(char));
     currNode->mBox->numMessages++;
     memcpy(currMboxNode->next->msg, msg, len);

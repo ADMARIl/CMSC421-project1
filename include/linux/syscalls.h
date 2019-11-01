@@ -1407,5 +1407,6 @@ asmlinkage long sys_mbx421_recv(unsigned long id, unsigned char __user *msg, lon
 asmlinkage long sys_mbx421_length(unsigned long id);
 asmlinkage long sys_mbx421_acl_add(unsigned long id, pid_t process_id);
 asmlinkage long sys_mbx421_acl_remove(unsigned long id, pid_t process_id);
+asmlinkage long sys_mbx421_print(void);
 
 #endif

@@ -11,7 +11,7 @@
 //#include <time.h>
 #include "skipList.h"
 
-unsigned int SKIPLIST_SIZE = 1;
+unsigned int SKIPLIST_SIZE = 5;
 
 int main() {
     // generate probability
@@ -84,14 +84,15 @@ int main() {
 
     printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < 12; i++) {
-        if(skipList_del(vals[i]) == 0) {
+        long result = skipList_del(vals[i]);
+        if(result == 0) {
             printf("Deleted ");
             printf("%lu", vals[i]);
             printf("\n");
         } else {
-            printf("Could not delete ");
-            printf("%lu", vals[i]);
-            printf("\n");
+            printf("Could not delete %lu, returned %ld\n", vals[i], result);
+            //printf("%lu", vals[i]);
+            //printf("\n");
         }
     }
 

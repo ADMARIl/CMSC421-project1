@@ -365,6 +365,7 @@
 441 common  mbx421_length   __x64_sys_mbx421_length
 442 common  mbx421_acl_add  __x64_sys_mbx421_acl_add
 443 common  mbx421_acl_remove   __x64_sys_mbx421_acl_remove
+444 common  mbx421_print    __x64_sys_mbx421_print
 
 #
 # x32-specific system call numbers start at 512 to avoid cache impact
