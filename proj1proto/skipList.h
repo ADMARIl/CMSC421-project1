@@ -32,7 +32,8 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 #include <string.h>
 #include <errno.h>
 #include <zconf.h>
-#include <cred.h>
+//#include <rwlock.h>
+//#include <cred.h>
 #include "list.h"
 
 // structs to hold our node data
@@ -55,6 +56,8 @@ struct skipList_node {
     struct mailbox* mBox;
     pid_t * accessList;
     int numUsers;
+    // create a read write lock for a node on the skip list
+    //rwlock_t slNodeLock;
 };
 
 unsigned int MAX_SL_SIZE = 0;
@@ -156,7 +159,7 @@ long skipList_search(unsigned long target) {
 // insert function
 static long skipList_add(unsigned long id) {
     // check if root
-    uid_t uid = current_uid().val;
+    uid_t uid = getuid();
     uid_t euid = geteuid();
     if (uid > 0 && euid > 0)
         return EPERM;

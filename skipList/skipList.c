@@ -29,6 +29,9 @@ struct mailBox_node {
 struct mailbox {
     int numMessages;
     struct mailBox_node *head;
+    // create a read write lock for the specific mailbox
+    // rwlock_t mailLock = __RW_LOCK_UNLOCKED(mailLock);;
+    ;
 };
 
 struct skipList_node {
@@ -39,6 +42,8 @@ struct skipList_node {
     struct mailbox* mBox;
     pid_t * accessList;
     int numUsers;
+    // create a read write lock for a node on the skip list
+    // rwlock_t slNodeLock = __RW_LOCK_UNLOCKED(slNodeLock);;
 };
 
 unsigned int MAX_SL_SIZE = 0;
@@ -105,6 +110,9 @@ SYSCALL_DEFINE2(mbx421_init, unsigned int, ptrs, unsigned int, prob) {
 
     SL_HEAD->numUsers = 0;
     SL_TAIL->numUsers = 0;
+
+    // initialize locks
+    //SL_HEAD->slNodeLock = __RW_LOCK_UNLOCKED(slNodeLock);
     // tell the world that the skiplist is ready to roll
     INIT_STATE = true;
     return 0;
@@ -319,8 +327,28 @@ SYSCALL_DEFINE1(mbx421_count, unsigned long, id) {
         }
     }
     currNode = currNode->next[currLevel];
+    // see if we are in the acl
+    pid_t pid = current->pid;
+    bool access = false;
+    if (currNode->accessList == NULL)
+        access = true;
+    else {
+        for (i = 0; i < currNode->numUsers; i++) {
+            if (currNode->accessList[i] == pid)
+                access = true;
+        }
+    }
+
+    // check if root
+    uid_t uid = current_uid().val;
+    uid_t euid = current_euid().val;
+    if ((uid > 0 && euid > 0) || access == false)
+        return EPERM;
+
+    // check if id exists
     if (currNode->id != id)
         return ENOENT;
+
     return currNode->mBox->numMessages;
 }
 
@@ -348,8 +376,6 @@ SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg
         }
     }
     currNode = currNode->next[currLevel];
-    if (currNode->id != id)
-        return ENOENT;
 
     // see if we are in the acl
     pid_t pid = current->pid;
@@ -368,6 +394,9 @@ SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg
     uid_t euid = current_euid().val;
     if ((uid > 0 && euid > 0) || access == false)
         return EPERM;
+    // check if id already exists
+    if (currNode->id != id)
+        return ENOENT;
 
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     for (i = 0; i < currNode->mBox->numMessages; i++) {
@@ -404,8 +433,6 @@ SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long
         }
     }
     currNode = currNode->next[currLevel];
-    if (currNode->id != id)
-        return ENOENT;
 
     // see if we are in the acl
     pid_t pid = current->pid;
@@ -424,6 +451,10 @@ SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long
     uid_t euid = current_euid().val;
     if ((uid > 0 && euid > 0) || access == false)
         return EPERM;
+
+    // check if id already exists
+    if (currNode->id != id)
+        return ENOENT;
 
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     if (currNode->mBox->numMessages == 0) {
@@ -457,8 +488,29 @@ SYSCALL_DEFINE1(mbx421_length, unsigned long, id) {
         }
     }
     currNode = currNode->next[currLevel];
+
+    // see if we are in the acl
+    pid_t pid = current->pid;
+    bool access = false;
+    if (currNode->accessList == NULL)
+        access = true;
+    else {
+        for (i = 0; i < currNode->numUsers; i++) {
+            if (currNode->accessList[i] == pid)
+                access = true;
+        }
+    }
+
+    // check if root
+    uid_t uid = current_uid().val;
+    uid_t euid = current_euid().val;
+    if ((uid > 0 && euid > 0) || access == false)
+        return EPERM;
+
+    // check if id already exists
     if (currNode->id != id)
         return ENOENT;
+
     if (currNode->mBox->head->next != NULL)
         return sizeof(currNode->mBox->head->next->msg);
     else

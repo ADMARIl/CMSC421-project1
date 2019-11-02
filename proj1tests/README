@@ -1,0 +1,14 @@
+TEST CASES README
+
+Insert Test - This test uses a for loop to add 12 different mailboxes to the skiplist data structure. It should pass all of these presuming it is run with the right permissions. There are test cases to check if the create sys call return something other than 0 and then informs the user. The last call should fail as it it a duplicate. This test was choose because it helps evaluate the underlying data structure for correct implementation.
+For half of the creates, the ACL add syscall is used to initialize a new ACL. These test weather or not the acl call works correctly. They should not error assuming correct permission usage.
+
+Mailbox Send - This test sends messages to various mailboxes to test functionality. None should fail.
+
+Mailbox Length - This test checks the length for various mailboxes. This test assumes normal operations. None should fail.
+
+Mailbox Count - This test checks the count call for the same mailboxes as length. This tests normal functionality. None should fail.
+
+Mailbox Receive - This test checks weather messages are received properly to test proper functionality. Test assumes normal operation. None should fail.
+
+Deleting - Deletes various mailboxes. Delete checks many boxes as they are removed. Box 2 and 188 should fail as it was never initialized. ACL remove test is used to check acl for various boxes. All should fail.

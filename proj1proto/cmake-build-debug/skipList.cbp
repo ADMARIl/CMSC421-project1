@@ -27,46 +27,6 @@
 					<DistClean command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="skipListTest2">
-				<Option output="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/skipListTest2" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 skipListTest2"/>
-					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="skipListTest2/fast">
-				<Option output="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/skipListTest2" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/8/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 skipListTest2/fast"/>
-					<CompileFile command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j6 -f &quot;/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 			<Target title="skipList">
 				<Option output="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/skipList" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug"/>
@@ -166,9 +126,6 @@
 		</Unit>
 		<Unit filename="/home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c">
 			<Option target="skipListTest1"/>
-		</Unit>
-		<Unit filename="/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c">
-			<Option target="skipListTest2"/>
 		</Unit>
 		<Unit filename="/home/aings1/CLionProjects/project1/proj1proto/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>

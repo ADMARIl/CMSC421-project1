@@ -1,0 +1,1 @@
+Added print to dmseg sys call for easier debugging of skiplist while in kernel mode. Locking does not work but hopefully everything else does.

@@ -111,19 +111,6 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named skipListTest2
-
-# Build rule for target.
-skipListTest2: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 skipListTest2
-.PHONY : skipListTest2
-
-# fast build rule for target.
-skipListTest2/fast:
-	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/build
-.PHONY : skipListTest2/fast
-
-#=============================================================================
 # Target rules for targets named skipList
 
 # Build rule for target.
@@ -176,33 +163,6 @@ home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s:
 	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s
 .PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s
 
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
-
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o
-
-# target to build an object file
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o:
-	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
-
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
-
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i
-
-# target to preprocess a source file
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i:
-	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
-
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
-
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s
-
-# target to generate assembly for a file
-home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s:
-	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
-
 main.o: main.c.o
 
 .PHONY : main.o
@@ -237,16 +197,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... skipListTest2"
 	@echo "... skipList"
 	@echo "... edit_cache"
 	@echo "... skipListTest1"
 	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.o"
 	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.i"
 	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.s"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
