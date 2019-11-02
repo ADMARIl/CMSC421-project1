@@ -170,6 +170,9 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
     if (INIT_STATE == false)
         return ENODEV;
     // various vars to keep track of skipList parameters
+
+    // lock
+
     unsigned int currLevel = MAX_SL_SIZE - 1;
     struct skipList_node *currNode = SL_HEAD;
     struct skipList_node **nodes = kmalloc(MAX_SL_SIZE * sizeof(struct skipList_node *), GFP_KERNEL);
@@ -238,6 +241,8 @@ SYSCALL_DEFINE1(mbx421_create, unsigned long, id) {
         SL_SIZE = newHeight-1;
     }
 
+    // UNLOCK
+
     kfree(nodes);
 
     return 0;
@@ -257,6 +262,9 @@ SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
         return ENOENT;
     else {
         // various vars to keep track of skipList parameters
+
+        // LOCK
+
         unsigned int currLevel = SL_SIZE;
         unsigned int targetHeight = 0;
         struct skipList_node *currNode = SL_HEAD;
@@ -304,6 +312,8 @@ SYSCALL_DEFINE1(mbx421_destroy, unsigned long, id) {
             kfree(nodes);
             return ENOENT;
         }
+
+        // UNLOCK
 
     }
 
@@ -398,6 +408,8 @@ SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg
     if (currNode->id != id)
         return ENOENT;
 
+    // LOCK
+
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     for (i = 0; i < currNode->mBox->numMessages; i++) {
         currMboxNode = currMboxNode->next;
@@ -408,7 +420,13 @@ SYSCALL_DEFINE3(mbx421_send, unsigned long, id, const unsigned char __user*, msg
     currMboxNode->next->msg = kmalloc(len * sizeof(char), GFP_KERNEL);
     currNode->mBox->numMessages++;
     // copy message over
+
+
+
     memcpy(currMboxNode->next->msg, msg, len);
+
+    // UNLOCK
+
     return 0;
 }
 
@@ -456,6 +474,8 @@ SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long
     if (currNode->id != id)
         return ENOENT;
 
+    // LOCK
+
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     if (currNode->mBox->numMessages == 0) {
         return ESRCH;
@@ -467,6 +487,9 @@ SYSCALL_DEFINE3(mbx421_recv, unsigned long, id, unsigned char __user*, msg, long
     kfree(currNode->accessList);
     currNode->mBox->head->next = tempNode;
     currNode->mBox->numMessages--;
+
+    // UNLOCK
+
     return 0;
 }
 
