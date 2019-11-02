@@ -26,7 +26,7 @@ int main() {
         return -1;
 
     // add to skipList
-    printf("-------- Inserting --------\n");
+    printf("\n-------- Inserting --------\n");
     for (int i  = 0; i < 12; i++) {
         if(skipList_add(vals[i]) == 0) {
             printf("Added mailbox id ");
@@ -39,7 +39,7 @@ int main() {
         }
     }
 
-    printf("-------- Mailbox Send Test --------\n");
+    printf("\n-------- Mailbox Send Test --------\n");
     const unsigned char testMsg1[5] = {'l','i','s','p'};
     const unsigned char testMsg2[5] = {'b','u','r','p'};
     const unsigned char testMsg3[5] = {'C','M','S','C'};
@@ -52,9 +52,20 @@ int main() {
     printf("Sending %s to mailbox %lu \n", testMsg3, vals[9]);
     mBox_send(vals[9], (const unsigned char *) testMsg3, 4);
 
+    printf("\n-------- ACL Test --------\n");
+    acl_add(vals[3], 100);
+    acl_add(vals[3], 68);
+    //acl_add(vals[10], 421);
+    acl_add(vals[3], 68);
+    //acl_add(100, 68);
+    acl_remove(vals[3], 100);
+    //acl_remove(vals[3], 68);
+    //acl_remove(vals[10], 421);
+    //acl_remove(vals[3], 68);
+    //acl_remove(100, 68);
     skipList_print();
 
-    printf("-------- Search for each value --------\n");
+    printf("\n-------- Search for each value --------\n");
     vals[9] = 188;
     for (int i  = 0; i < 12; i++) {
         if(skipList_search(vals[i]) == 0) {
@@ -68,7 +79,7 @@ int main() {
         }
     }
 
-    printf("-------- Mailbox Receive Test --------\n");
+    printf("\n-------- Mailbox Receive Test --------\n");
     unsigned char *testRecv = malloc(4 * sizeof(unsigned char));
     printf("Receiving from mailbox %lu \n", vals[4]);
     mBox_recv(vals[4], testRecv, 4);
@@ -82,7 +93,7 @@ int main() {
 
     skipList_print();
 
-    printf("-------- Deleting --------\n");
+    printf("\n-------- Deleting --------\n");
     for (unsigned long i  = 0; i < 12; i++) {
         long result = skipList_del(vals[i]);
         if(result == 0) {

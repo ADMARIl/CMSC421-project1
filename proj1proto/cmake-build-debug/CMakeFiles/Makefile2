@@ -53,14 +53,16 @@ CMAKE_BINARY_DIR = /home/aings1/CLionProjects/project1/proj1proto/cmake-build-de
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
+all: CMakeFiles/skipListTest2.dir/all
 all: CMakeFiles/skipList.dir/all
-all: CMakeFiles/skipListTest.dir/all
+all: CMakeFiles/skipListTest1.dir/all
 
 .PHONY : all
 
 # The main recursive "clean" target.
+clean: CMakeFiles/skipListTest2.dir/clean
 clean: CMakeFiles/skipList.dir/clean
-clean: CMakeFiles/skipListTest.dir/clean
+clean: CMakeFiles/skipListTest1.dir/clean
 
 .PHONY : clean
 
@@ -68,6 +70,33 @@ clean: CMakeFiles/skipListTest.dir/clean
 preinstall:
 
 .PHONY : preinstall
+
+#=============================================================================
+# Target rules for target CMakeFiles/skipListTest2.dir
+
+# All Build rule for target.
+CMakeFiles/skipListTest2.dir/all:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/depend
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles --progress-num=5,6 "Built target skipListTest2"
+.PHONY : CMakeFiles/skipListTest2.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/skipListTest2.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/skipListTest2.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/skipListTest2.dir/rule
+
+# Convenience name for target.
+skipListTest2: CMakeFiles/skipListTest2.dir/rule
+
+.PHONY : skipListTest2
+
+# clean rule for target.
+CMakeFiles/skipListTest2.dir/clean:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/clean
+.PHONY : CMakeFiles/skipListTest2.dir/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/skipList.dir
@@ -97,31 +126,31 @@ CMakeFiles/skipList.dir/clean:
 .PHONY : CMakeFiles/skipList.dir/clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/skipListTest.dir
+# Target rules for target CMakeFiles/skipListTest1.dir
 
 # All Build rule for target.
-CMakeFiles/skipListTest.dir/all:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/depend
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target skipListTest"
-.PHONY : CMakeFiles/skipListTest.dir/all
+CMakeFiles/skipListTest1.dir/all:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/depend
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles --progress-num=3,4 "Built target skipListTest1"
+.PHONY : CMakeFiles/skipListTest1.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/skipListTest.dir/rule: cmake_check_build_system
+CMakeFiles/skipListTest1.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/skipListTest.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/skipListTest1.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/skipListTest.dir/rule
+.PHONY : CMakeFiles/skipListTest1.dir/rule
 
 # Convenience name for target.
-skipListTest: CMakeFiles/skipListTest.dir/rule
+skipListTest1: CMakeFiles/skipListTest1.dir/rule
 
-.PHONY : skipListTest
+.PHONY : skipListTest1
 
 # clean rule for target.
-CMakeFiles/skipListTest.dir/clean:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/clean
-.PHONY : CMakeFiles/skipListTest.dir/clean
+CMakeFiles/skipListTest1.dir/clean:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/clean
+.PHONY : CMakeFiles/skipListTest1.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

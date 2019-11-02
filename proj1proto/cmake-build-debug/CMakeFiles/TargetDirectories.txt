@@ -1,4 +1,5 @@
-/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/skipList.dir
 /home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/skipListTest.dir
+/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/skipListTest2.dir
+/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/skipList.dir
+/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/aings1/CLionProjects/project1/proj1proto/cmake-build-debug/CMakeFiles/skipListTest1.dir

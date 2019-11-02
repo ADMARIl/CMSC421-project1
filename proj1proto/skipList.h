@@ -26,10 +26,13 @@ __\_/_|_| |_|_|___/_|_|___/  \__,_|____ _                 _
 // include all the things
 
 #include <stdlib.h>
+//#include <sys/types.h>
 //#include <stdio.h>
 #include <time.h>
 #include <string.h>
 #include <errno.h>
+#include <zconf.h>
+#include <cred.h>
 #include "list.h"
 
 // structs to hold our node data
@@ -50,6 +53,8 @@ struct skipList_node {
     unsigned int towerHeight;
     struct skipList_node** next;
     struct mailbox* mBox;
+    pid_t * accessList;
+    int numUsers;
 };
 
 unsigned int MAX_SL_SIZE = 0;
@@ -107,6 +112,12 @@ long skipList_initialize(unsigned int ptrs, unsigned int prob) {
     // set mailbox to null for now since we aren't using them yet
     SL_HEAD->mBox = NULL;
     SL_TAIL->mBox = NULL;
+    // create empty access control list
+    SL_HEAD->accessList = NULL;
+    SL_TAIL->accessList = NULL;
+
+    SL_HEAD->numUsers = 0;
+    SL_TAIL->numUsers = 0;
     // tell the world that the skiplist is ready to roll
     INIT_STATE = true;
     return 0;
@@ -144,6 +155,11 @@ long skipList_search(unsigned long target) {
 
 // insert function
 static long skipList_add(unsigned long id) {
+    // check if root
+    uid_t uid = current_uid().val;
+    uid_t euid = geteuid();
+    if (uid > 0 && euid > 0)
+        return EPERM;
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
@@ -201,6 +217,9 @@ static long skipList_add(unsigned long id) {
     newNode->mBox->head->next = NULL;
     newNode->mBox->head->msg = NULL;
 
+    newNode->accessList = NULL;
+    newNode->numUsers = 0;
+
     newNode->next = malloc(newHeight * sizeof(struct skipList_node));
 
     // do pointer surgery to rebuild associations
@@ -220,6 +239,11 @@ static long skipList_add(unsigned long id) {
 
 // delete function
 long skipList_del(unsigned long id) {
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if (uid > 0 && euid > 0)
+        return EPERM;
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
@@ -263,6 +287,7 @@ long skipList_del(unsigned long id) {
                 currMboxNode = tempNode;
 
             }
+            free(currNode->accessList);
             free(currNode->mBox);
             free(currNode);
             free(nodes);
@@ -330,6 +355,7 @@ static long skipList_close() {
         SL_HEAD->next[0] = currNode->next[0];
         // free all the dynamically allocated stuff in the node
         free(currNode->next);
+        free(currNode->accessList);
         // free mailbox memory
         struct mailBox_node *currMboxNode = currNode->mBox->head;
         while (currMboxNode != NULL) {
@@ -364,6 +390,7 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
     // check if mailbox system has been initialized
     if (INIT_STATE == false)
         return ENODEV;
+
     // is length invalid?
     if (len < 0 || id == 0)
         return EINVAL;
@@ -383,6 +410,25 @@ long mBox_send(unsigned long id, const unsigned char *msg, long len) {
     currNode = currNode->next[currLevel];
     if (currNode->id != id)
         return ENOENT;
+
+    // see if we are in the acl
+    pid_t pid = getpid();
+    bool access = false;
+    if (currNode->accessList == NULL)
+        access = true;
+    else {
+        for (i = 0; i < currNode->numUsers; i++) {
+            if (currNode->accessList[i] == pid)
+                access = true;
+        }
+    }
+
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if ((uid > 0 && euid > 0) || access == false)
+        return EPERM;
+
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     for (i = 0; i < currNode->mBox->numMessages; i++) {
         currMboxNode = currMboxNode->next;
@@ -418,6 +464,25 @@ long mBox_recv(unsigned long id, unsigned char *msg, long len) {
     currNode = currNode->next[currLevel];
     if (currNode->id != id)
         return ENOENT;
+
+    // see if we are in the acl or if the acl is null
+    pid_t pid = getpid();
+    bool access = false;
+    if (currNode->accessList == NULL)
+        access = true;
+    else {
+        for (i = 0; i < currNode->numUsers; i++) {
+            if (currNode->accessList[i] == pid)
+                access = true;
+        }
+    }
+
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if ((uid > 0 && euid > 0) || access == false)
+        return EPERM;
+
     struct mailBox_node *currMboxNode = currNode->mBox->head;
     if (currNode->mBox->numMessages == 0) {
         return ESRCH;
@@ -426,6 +491,7 @@ long mBox_recv(unsigned long id, unsigned char *msg, long len) {
     struct mailBox_node *tempNode = currNode->mBox->head->next->next;
     free(currNode->mBox->head->next->msg);
     free(currNode->mBox->head->next);
+    free(currNode->accessList);
     currNode->mBox->head->next = tempNode;
     currNode->mBox->numMessages--;
     return 0;
@@ -487,11 +553,126 @@ long mBox_numMessages(unsigned long id) {
 // Access Control List Functions
 //
 
+long acl_print(unsigned long id) {
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if (uid > 0 && euid > 0)
+        return EPERM;
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
+        }
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
+        return ENOENT;
+    printf("Access Control List for id:%lu ", id);
+    for (i = 0; i < currNode->numUsers; i++) {
+        printf("[pid = %d]", currNode->accessList[i]);
+    }
+    printf("\n");
+    return 0;
+}
+
 long acl_add(unsigned long id, pid_t process_id) {
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if (uid > 0 && euid > 0)
+        return EPERM;
+
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
+        }
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
+        return ENOENT;
+    currNode->numUsers++;
+    if (currNode->accessList == NULL) {
+        currNode->accessList = malloc(sizeof(pid_t) * 2);
+    } else if ((sizeof(pid_t) * currNode->numUsers) < sizeof(currNode->accessList)) {
+        pid_t * tempList;
+        tempList = realloc(currNode->accessList, 2 * sizeof(pid_t) * currNode->numUsers);
+        currNode->accessList = tempList;
+    }
+    for (i = 0; i < currNode->numUsers; i++) {
+        if (currNode->accessList[i] == process_id) {
+            currNode->numUsers--;
+            // return error if the id already exists
+            return EINVAL;
+        }
+    }
+    currNode->accessList[currNode->numUsers - 1] = process_id;
+    printf("Added pid of %d to mailbox %lu at position %d\n", process_id, id, i);
+    acl_print(id);
+    return 0;
 
 }
 
 long acl_remove(unsigned long id, pid_t process_id) {
+    // check if root
+    uid_t uid = getuid();
+    uid_t euid = geteuid();
+    if (uid > 0 && euid > 0)
+        return EPERM;
 
+    // check if mailbox system has been initialized
+    if (INIT_STATE == false)
+        return ENODEV;
+    unsigned int currLevel = SL_SIZE;
+    struct skipList_node *currNode = SL_HEAD;
+    int i = 0;
+    for (i = SL_SIZE; i >= 0; i--) {
+        // check if we aren't at the bottom yet
+        if (currLevel > 0) {
+            currLevel--;
+        }
+        // loop to find anything to the right that isn't a tail
+        while (currNode->next[currLevel]->id < id && currNode->next[currLevel] != SL_TAIL) {
+            currNode = currNode->next[currLevel];
+        }
+    }
+    currNode = currNode->next[currLevel];
+    if (currNode->id != id)
+        return ENOENT;
+
+    for (i = 0; i < currNode->numUsers; i++) {
+        if (currNode->accessList[i] == process_id) {
+            int j = 0;
+            for (j = i; j < currNode->numUsers; j++)
+                currNode->accessList[i] = currNode->accessList[i+1];
+            currNode->numUsers--;
+            printf("Removed pid of %d at mailbox %lu at position %d\n", process_id, id, j);
+        }
+    }
+
+    acl_print(id);
+    return 0;
 }
+
 #endif //SKIPLIST_SKIPLIST_H

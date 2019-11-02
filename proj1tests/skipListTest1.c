@@ -20,16 +20,13 @@
 #define sys_mbx421_acl_remove 443
 #define sys_mbx421_print 444
 
-/*long init_syscall(unsigned int ptrs, unsigned int prob) {
-    return syscall(sys_mbx421_init);
-}*/
-
 int main() {
     printf("Hello, World!\n");
     long res = syscall(sys_mbx421_init, 5, 16388);
 
+    // mailbox ids to test with
     unsigned long vals[] = {5, 3, 2, 8, 14, 443, 80, 87, 22, 90, 56, 2};
-
+    // test adding ids
     printf("-------- Inserting --------\n");
     for (int i  = 0; i < 12; i++) {
         if(syscall(sys_mbx421_create, vals[i]) == 0) {
@@ -44,7 +41,7 @@ int main() {
     }
 
     syscall(sys_mbx421_print);
-
+    // test sending messages
     printf("-------- Mailbox Send Test --------\n");
     const unsigned char testMsg1[5] = {'l','i','s','p'};
     const unsigned char testMsg2[5] = {'b','u','r','p'};
@@ -57,9 +54,19 @@ int main() {
     syscall(sys_mbx421_send, vals[7], (const unsigned char *) testMsg3, 4);
     printf("Sending %s to mailbox %lu \n", testMsg3, vals[9]);
     syscall(sys_mbx421_send, vals[9], (const unsigned char *) testMsg3, 4);
+    // test length sys call
+    printf("-------- Mailbox Length Test --------\n");
+    printf("Length of first message in mail box %lu is %ld\n", vals[4], syscall(sys_mbx421_length, vals[4]));
+    printf("Length of first message in mail box %lu is %ld\n", vals[7], syscall(sys_mbx421_length, vals[7]));
+    printf("Length of first message in mail box %lu is %ld\n", vals[9], syscall(sys_mbx421_length, vals[9]));
+    // test count sys call
+    printf("-------- Mailbox Count Test --------\n");
+    printf("Number of messages in mail box %lu is %ld\n", vals[4], syscall(sys_mbx421_count, vals[4]));
+    printf("Number of messages in mail box %lu is %ld\n", vals[7], syscall(sys_mbx421_count, vals[7]));
+    printf("Number of messages in mail box %lu is %ld\n", vals[9], syscall(sys_mbx421_count, vals[9]));
 
     syscall(sys_mbx421_print);
-
+    // test receive syscall
     printf("-------- Mailbox Receive Test --------\n");
     unsigned char *testRecv = malloc(4 * sizeof(unsigned char));
     printf("Receiving from mailbox %lu \n", vals[4]);
@@ -73,7 +80,7 @@ int main() {
     free(testRecv2);
 
     syscall(sys_mbx421_print);
-
+    // test destroy syscall
     printf("-------- Deleting --------\n");
     for (unsigned long i  = 0; i < 12; i++) {
         if(syscall(sys_mbx421_destroy, vals[i]) == 0) {

@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/aings1/CLionProjects/project1/proj1proto/cmake-build-de
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/opt/clion-2019.2.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/opt/clion-2019.2.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named skipListTest2
+
+# Build rule for target.
+skipListTest2: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 skipListTest2
+.PHONY : skipListTest2
+
+# fast build rule for target.
+skipListTest2/fast:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/build
+.PHONY : skipListTest2/fast
+
+#=============================================================================
 # Target rules for targets named skipList
 
 # Build rule for target.
@@ -124,44 +137,71 @@ skipList/fast:
 .PHONY : skipList/fast
 
 #=============================================================================
-# Target rules for targets named skipListTest
+# Target rules for targets named skipListTest1
 
 # Build rule for target.
-skipListTest: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 skipListTest
-.PHONY : skipListTest
+skipListTest1: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 skipListTest1
+.PHONY : skipListTest1
 
 # fast build rule for target.
-skipListTest/fast:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/build
-.PHONY : skipListTest/fast
+skipListTest1/fast:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/build
+.PHONY : skipListTest1/fast
 
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.o: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.o: home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.o
 
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.o
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.o
 
 # target to build an object file
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.o
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.o:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.o
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.o
 
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.i: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.i: home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.i
 
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.i
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.i
 
 # target to preprocess a source file
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.i
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.i:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.i
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.i
 
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.s: home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.s: home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s
 
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.s
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.s
 
 # target to generate assembly for a file
-home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s:
-	$(MAKE) -f CMakeFiles/skipListTest.dir/build.make CMakeFiles/skipListTest.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
-.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTests.c.s
+home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s:
+	$(MAKE) -f CMakeFiles/skipListTest1.dir/build.make CMakeFiles/skipListTest1.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest1.c.s
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o
+
+# target to build an object file
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.o
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i
+
+# target to preprocess a source file
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.i
+
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s: home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
+
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s
+
+# target to generate assembly for a file
+home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s:
+	$(MAKE) -f CMakeFiles/skipListTest2.dir/build.make CMakeFiles/skipListTest2.dir/home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
+.PHONY : home/aings1/CLionProjects/project1/proj1tests/skipListTest2.c.s
 
 main.o: main.c.o
 
@@ -196,13 +236,17 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
-	@echo "... skipList"
 	@echo "... rebuild_cache"
-	@echo "... skipListTest"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.o"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.i"
-	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTests.s"
+	@echo "... skipListTest2"
+	@echo "... skipList"
+	@echo "... edit_cache"
+	@echo "... skipListTest1"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.o"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.i"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest1.s"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.o"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.i"
+	@echo "... home/aings1/CLionProjects/project1/proj1tests/skipListTest2.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
