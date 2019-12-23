@@ -1,0 +1,43 @@
+CMSC 421 Project 1 Grade
+Total Possible Points: 100
+
+Student: aings1@umbc.edu
+GitHub Username: ADMARIl
+
+------------------------------------------------------------------
+General                                        
+    - Kernel successfully compiles                            : 10/10
+    - Tests                                                   : 10/20
+	- Skiplist Functionality                                  : 10/10
+------------------------------------------------------------------
+Mailbox Management
+    - Create                                                  :  8/10
+    - Send & Receive                                          :  5/10
+    - Init & Destroy                                          :  4/5
+	- Count                                                   :  4/5
+	- Length                                                  :  4/5
+------------------------------------------------------------------
+Locking
+	- Locking implementation                                  :  8/15
+------------------------------------------------------------------
+ACL
+    - Root only methods                                       :  4/5
+    - Process ACL                                             :  4/5
+------------------------------------------------------------------
+Curve                                                         :  30
+------------------------------------------------------------------
+Late penalty, if applicable                                   : 
+Misc. penalty                                                 : 
+------------------------------------------------------------------
+
+Final Project 1 Grade                                         : 100/100
+
+Comments from the TA:
+
+------------------------------------------------------------------
+
+Sand & Receive crash the program using them because you are using memcpy directly.
+There were functions called copy_from_user and copy_to_user that would do the
+proper copying for you. You got most of the points as partial credit. 
+
+Locking is not really well defined, even with the comments.
